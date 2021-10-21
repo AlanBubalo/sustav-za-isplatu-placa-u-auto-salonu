@@ -29,7 +29,10 @@ CREATE TABLE zaposlenik(
 	id INTEGER NOT NULL PRIMARY KEY,
 	ime VARCHAR(20) NOT NULL,
 	prezime VARCHAR(30) NOT NULL,
-    pozicija VARCHAR(30) NOT NULL
+    pozicija VARCHAR(30) NOT NULL,
+    oib CHAR(11) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    CHECK (email LIKE "%@%")
 );
 
 CREATE TABLE satnica(
@@ -52,4 +55,11 @@ CREATE TABLE klasa (
 	id CHAR NOT NULL PRIMARY KEY,
 	naziv VARCHAR(20) NOT NULL,
     stopa_bonusa FLOAT DEFAULT 0
+);
+
+CREATE TABLE bonus_sati (
+	rad_vikendom FLOAT DEFAULT 0,
+	nocna_smjena FLOAT DEFAULT 0,
+	rad_blagdanom FLOAT DEFAULT 0,
+    
 );
