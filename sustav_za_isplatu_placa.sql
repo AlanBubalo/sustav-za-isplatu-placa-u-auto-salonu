@@ -54,11 +54,10 @@ CREATE TABLE zaposlenik(
 );
 
 CREATE TABLE satnica(
-	id_zaposlenik INTEGER NOT NULL,
+	id_pozicija INTEGER NOT NULL PRIMARY KEY,
     novac_po_satu INTEGER NOT NULL,
 	broj_sati INTEGER DEFAULT 0,
-	bonus FLOAT DEFAULT 0,
-    FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id)
+	bonus FLOAT DEFAULT 0
 );
 
 CREATE TABLE automobil(
@@ -76,10 +75,9 @@ CREATE TABLE klasa (
 );
 
 CREATE TABLE bonus_sati (
-	rad_vikendom FLOAT DEFAULT 0,
-	nocna_smjena FLOAT DEFAULT 0,
-	rad_blagdanom FLOAT DEFAULT 0,
-    putni_trosak  FLOAT DEFAULT 0
+    id INTEGER NOT NULL PRIMARY KEY,
+    tip_bonusa VARCHAR(20),
+    postotak FLOAT
 );
 
 /*
@@ -168,3 +166,42 @@ INSERT INTO pozicija VALUES  ("1","Direktor","Voditelj firme")
                             ,("11","Dostavljač","Dostavlja prodane proizvode njihovim kupcima")
                             ,("12","Čistać","Održava radno mjesto čistim")
                             ,("13","Čistać Automobila","Odžava automobile u izložbenom stanju");
+                            
+INSERT INTO satnica VALUES ("1","120","",""),
+						   ("2","70","",""), 
+                           ("3","90","",""),   
+                           ("4","100","",""),   
+                           ("5","60","",""),   
+                           ("6","55","",""),   
+                           ("7","40","",""),   
+                           ("8","40","",""),   
+                           ("9","100","",""),   
+                           ("10","40","",""),   
+                           ("11","35","",""),   
+                           ("12","30","",""),   
+                           ("13","35","",""); 
+                           
+INSERT INTO klasa VALUES ("1","Mali gradski auto","1.5%"), 
+						 ("2","Kompaktni gradski auto","3%"),    
+                         ("3","Gradski auto","4%"),    
+                         ("4","Gradska limuzina","5%"),    
+                         ("5","Luksuzna limuzina","8%"),    
+                         ("6","SUV","6%"),    
+                         ("7","Luksuzni SUV","8%"),    
+                         ("8","Terenac","4%"),    
+                         ("9","Luksuzni terenac","7%"),    
+                         ("10","Sportski automobil","10%"),    
+                         ("11","Putnički Kombi","5$"),    
+                         ("12","Električni automobili","13%"),    
+                         ("13","Pick-up","5%"); 
+                         
+INSERT INTO bonus_sati VALUES ("1","Rad vikendom","50%"),
+                              ("2","Rad blagdanom","100%"),
+                              ("3","Noćni rad","50%"),  
+                              ("4","Rad prekovremeno","25%");
+                             
+                               
+                        
+                         
+					
+                         
