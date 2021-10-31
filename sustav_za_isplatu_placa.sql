@@ -39,7 +39,7 @@ plaćanje karticom
 plaćanje u kešu
 	
     moguće je plaćat na rate 
-    d0 60 rata = 5 godina
+    do 60 rata = 5 godina
 */
 
 CREATE TABLE zaposlenik(
@@ -103,8 +103,7 @@ CHECK (email LIKE "%@%")
 
 CREATE TABLE racun (
 	id INTEGER NOT NULL PRIMARY KEY,
-	vrijeme_dostave TIME,
-    vrijeme_izdavanja DATETIME NOT NULL,
+    datum_izdavanja DATETIME NOT NULL,
 	id_zaposlenik INTEGER NOT NULL,
 	id_automobil INTEGER NOT NULL,
     vrsta_placanja VARCHAR(30) NOT NULL,
@@ -239,7 +238,7 @@ INSERT INTO automobil VALUES  ("1", "Volkswagen UP", "1", "94953"),
                               ("37", "Rolls Royce Cullinan", "9", "932310"),
                               ("38", "Aston Martin DBS", "10", "912000"),
                               ("39", "Porsche 911 Spyder", "10", "8700000"),
-                              ("40", "BMW Serije 8 coupe", "10", "9100031"),
+                              ("40", "BMW Serije 8 coupe", "10", "910003"),
                               ("41", "Lamborghini Huracan", "10", "1948929"),
                               ("42", "Ferrari 812", "10" "1495249"),
                               ("43", "Nissan GT-R", "10", "901239"),
@@ -255,11 +254,36 @@ INSERT INTO automobil VALUES  ("1", "Volkswagen UP", "1", "94953"),
                               ("53", "Opel Corsa Electric", "12", "230000"),
                               ("54", "Mercedes X klasa", "13", "640213"),
                               ("55", "Ford Raptor", "13", "511000");
-                           
-	
-                             
-                               
-                        
+                              
+
+INSERT INTO kupac VALUES ("1","Lea","Krolo","lkrolo@gmail.com","021371084","HR7025000093496599413"),
+						 ("2","Gabriel","Kovačić","gkovacic@gmail.com","031613270","HR3323400096189952688"),
+                         ("3","Tara","Pavić","tpavic@gmail.com","043231556","HR1624020062631837981"),
+                         ("4","Tara","Babić","tbabic@gmail.com","098269316","HR4724020064367149769"),
+                         ("5","Nino","Srna","nsrna@gmail.com","021380731","HR8324840083928744265"),
+                         ("6","Patrik","Matić","pmatic@gmail.com","023251865","HR1423400099524543273"),
+                         ("7","Adrian","Abramović","aabramovic@gmail.com","012422829","HR9224020069175682817"),
+                         ("8","Niko","Maras","nmaras@gmail.com","021631088","HR8724020066154982142"),
+                         ("9","Branislav","Janković","bjankovic@gmail.com","016111531","HR3524840089832569134"),
+                         ("10","Marija","Modrić","mmodric@gmail.com","051321911","HR1223400092176878184"),
+                         ("11","Leon","Kasun","lkasun@gmail.com","023385370","HR2023400093372382379"),
+                         ("12","Tomislav","Župan","tzupan@gmail.com","052624269","HR5123600003847174167"),
+                         ("13","Vanesa","Vuka","vvuka@gmail.com","098256009","HR9023400093732212416"),
+                         ("14","Ela","Pavletić","epavletic@gmail.com","040384148","HR6525000093219268646"),
+                         ("15","Dunja","Zorić","dzoric@gmail.com","044547584","HR2923600009341135835");
                          
-					
-                         
+INSERT INTO racun VALUES ("1",STR_TO_DATE("10.10.2021.","%d,%m,%Y"),"7","1","Karticom-jednokratno","15"),
+						 ("2",STR_TO_DATE("9.11.2021.","%d,%m,%Y"),"8","4","Gotovinom","14"),
+                         ("3",STR_TO_DATE("01.01.2021.","%d,%m,%Y"),"9","8","Pouzećem","13"),
+                         ("4",STR_TO_DATE("21.03.2021.","%d,%m,%Y"),"11","17","Karticom-na rate","12"),
+                         ("5",STR_TO_DATE("17.04.2021.","%d,%m,%Y"),"7","20","Karticom-jednokratno","11"),
+                         ("6",STR_TO_DATE("10.05.2021.","%d,%m,%Y"),"8","28","Karticom-na rate","10"),
+                         ("7",STR_TO_DATE("27.08.2021.","%d,%m,%Y"),"9","29","Gotovinom","9"),
+                         ("8",STR_TO_DATE("03.07.2021.","%d,%m,%Y"),"11","33","Karticom-jednokratno","8"),
+                         ("9",STR_TO_DATE("29.02.2021.","%d,%m,%Y"),"7","37","Gotovinom","7"),
+                         ("10",STR_TO_DATE("18.10.2021.","%d,%m,%Y"),"7","41","Pouzećem","6"),
+                         ("11",STR_TO_DATE("15.11.2021.","%d,%m,%Y"),"11","48","Gotovinom","5"),
+                         ("12",STR_TO_DATE("02.12.2021.","%d,%m,%Y"),"11","49","Pouzećem","4"),
+                         ("13",STR_TO_DATE("22.12.2021.","%d,%m,%Y"),"8","23","Karticom-jednokratno","3"),
+                         ("14",STR_TO_DATE("07.03.2021.","%d,%m,%Y"),"9","44","Pouzećem","2"),
+                         ("15",STR_TO_DATE("11.08.2021.","%d,%m,%Y"),"8","51","Gotovinom","1");
