@@ -35,6 +35,7 @@ CREATE TABLE pozicija (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	ime VARCHAR(30),
     opis TEXT,
+    novac_po_satu INTEGER NOT  NULL,
     UNIQUE (ime, opis)
 );
 
@@ -50,11 +51,12 @@ CREATE TABLE zaposlenik(
     CONSTRAINT zaposlenik_pozicija_fk FOREIGN KEY (id_pozicija) REFERENCES pozicija(id)
 );
 
-CREATE TABLE satnica(
-	id_pozicija INTEGER NOT NULL PRIMARY KEY,
-    novac_po_satu INTEGER NOT NULL,
+CREATE TABLE isplata (
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    id_zaposlenik INTEGER NOT NULL,
 	broj_sati INTEGER DEFAULT 0,
-	bonus FLOAT DEFAULT 0
+	bonus FLOAT DEFAULT 0,
+    FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id)
 );
 
 CREATE TABLE klasa (
@@ -100,10 +102,17 @@ CREATE TABLE kupac (
 	CONSTRAINT kupac_email_ck CHECK (email LIKE "%@%")
 );
 
+CREATE TABLE servis (
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    vrsta_servisa VARCHAR(20) UNIQUE,
+    cijena_servisa INTEGER NOT NULL
+);
+
 CREATE TABLE placanje (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
     naziv VARCHAR(20) UNIQUE
 );
+
 
 CREATE TABLE racun (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -112,11 +121,13 @@ CREATE TABLE racun (
 	id_automobil INTEGER NOT NULL,
     id_placanje INTEGER NOT NULL,
     id_kupac INTEGER NOT NULL,
+    id_servis INTEGER,
     CONSTRAINT racun_datum_izdavanja_ck CHECK (datum_izdavanja > NOW()),
 	CONSTRAINT racun_zaposlenik_fk FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id),
 	CONSTRAINT racun_automobil_fk FOREIGN KEY (id_automobil) REFERENCES automobil(id),
     CONSTRAINT racun_placanje_fk FOREIGN KEY (id_placanje) REFERENCES placanje(id),
-    CONSTRAINT racun_kupac_fk FOREIGN KEY (id_kupac) REFERENCES kupac(id)
+    CONSTRAINT racun_kupac_fk FOREIGN KEY (id_kupac) REFERENCES kupac(id),
+    CONSTRAINT racun_servis_fk FOREIGN KEY (id_servis) REFERENCES servis(id)
 );
 
 INSERT INTO pozicija (ime, opis) VALUES
