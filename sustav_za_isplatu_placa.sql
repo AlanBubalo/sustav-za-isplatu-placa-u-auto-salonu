@@ -33,9 +33,9 @@ plaćanje u kešu
 
 CREATE TABLE pozicija (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
-	ime VARCHAR(30),
-    opis TEXT,
-    novac_po_satu INTEGER NOT  NULL,
+	ime VARCHAR(30) NOT NULL,
+    opis VARCHAR(100) NOT NULL,
+    novac_po_satu INTEGER NOT NULL,
     UNIQUE (ime, opis)
 );
 
@@ -104,7 +104,7 @@ CREATE TABLE kupac (
 
 CREATE TABLE servis (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vrsta_servisa VARCHAR(20) UNIQUE,
+    vrsta_servisa VARCHAR(20) NOT NULL UNIQUE,
     cijena_servisa INTEGER NOT NULL
 );
 
@@ -113,37 +113,37 @@ CREATE TABLE placanje (
     naziv VARCHAR(20) UNIQUE
 );
 
-
 CREATE TABLE racun (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
     datum_izdavanja DATETIME DEFAULT NOW(),
 	id_zaposlenik INTEGER NOT NULL,
-	id_automobil INTEGER NOT NULL,
-    id_placanje INTEGER NOT NULL,
     id_kupac INTEGER NOT NULL,
+    id_placanje INTEGER NOT NULL,
+    id_automobil INTEGER,
     id_servis INTEGER,
-    CONSTRAINT racun_datum_izdavanja_ck CHECK (datum_izdavanja > NOW()),
+    -- CONSTRAINT racun_datum_izdavanja_ck CHECK (datum_izdavanja < NOW()),
+    CONSTRAINT racun_auto_or_servis_ck CHECK ((id_servis != NULL && id_automobil = NULL) || (id_servis = NULL && id_automobil != NULL)),
 	CONSTRAINT racun_zaposlenik_fk FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id),
-	CONSTRAINT racun_automobil_fk FOREIGN KEY (id_automobil) REFERENCES automobil(id),
-    CONSTRAINT racun_placanje_fk FOREIGN KEY (id_placanje) REFERENCES placanje(id),
     CONSTRAINT racun_kupac_fk FOREIGN KEY (id_kupac) REFERENCES kupac(id),
+    CONSTRAINT racun_placanje_fk FOREIGN KEY (id_placanje) REFERENCES placanje(id),
+    CONSTRAINT racun_automobil_fk FOREIGN KEY (id_automobil) REFERENCES automobil(id),
     CONSTRAINT racun_servis_fk FOREIGN KEY (id_servis) REFERENCES servis(id)
 );
 
-INSERT INTO pozicija (ime, opis) VALUES
-	("Direktor", "Voditelj firme"),
-	("Tajnik", "Dogovara sastanke i vodi upravne poslove"),
-	("Knjigovođa", "Vodi knjige vezane uz finacije i druge aspekte firme"),
-	("Voditelje prodaje", "Nadgleda prodavače i mehaničare"),
-	("Prodavač automobila", "Prodaje automobile"),
-	("Prodavač auto dijelova", "Prodaje dijelove za automobile"),
-	("Automehaničar", "Popravlja mehaničke poteškoće to jest kvarove na automobilima"),
-	("Autoelektričar", "Popravlja elektroničke poteškoće to jest kvarove na automobilima"),
-	("Informatičar", "Vodi aplikaciju i online stranicu vezanu uz firmu"),
-	("Zaštitar", "Brine o sigurnosti radnika i vlasništva firme"),
-	("Dostavljač", "Dostavlja prodane proizvode njihovim kupcima"),
-	("Čistać", "Održava radno mjesto čistim"),
-	("Čistać Automobila", "Održava automobile u izložbenom stanju");
+INSERT INTO pozicija (ime, opis, novac_po_satu) VALUES
+	("Direktor", "Voditelj firme", 120),
+	("Tajnik", "Dogovara sastanke i vodi upravne poslove", 70),
+	("Knjigovođa", "Vodi knjige vezane uz finacije i druge aspekte firme", 90),
+	("Voditelje prodaje", "Nadgleda prodavače i mehaničare", 100),
+	("Prodavač automobila", "Prodaje automobile", 60),
+	("Prodavač auto dijelova", "Prodaje dijelove za automobile", 55),
+	("Automehaničar", "Popravlja mehaničke poteškoće to jest kvarove na automobilima", 40),
+	("Autoelektričar", "Popravlja elektroničke poteškoće to jest kvarove na automobilima", 40),
+	("Informatičar", "Vodi aplikaciju i online stranicu vezanu uz firmu", 100),
+	("Zaštitar", "Brine o sigurnosti radnika i vlasništva firme", 40),
+	("Dostavljač", "Dostavlja prodane proizvode njihovim kupcima", 35),
+	("Čistać", "Održava radno mjesto čistim", 30),
+	("Čistać Automobila", "Održava automobile u izložbenom stanju", 35);
 
 INSERT INTO zaposlenik (ime, prezime, id_pozicija, oib, email) VALUES
 	("Mlohael", "Ether", 1, "95841550335", "mether@luxecars.com"),
@@ -178,20 +178,20 @@ INSERT INTO zaposlenik (ime, prezime, id_pozicija, oib, email) VALUES
 	("Orianna", "Ombretta", 13, "07151025941", "oombretta@luxecars.com"),
 	("Danko", "Bananković", 13, "01405821019", "dbanankovic@luxecars.com");
 
-INSERT INTO satnica (id_pozicija, novac_po_satu, broj_sati, bonus) VALUES
-	(1, 120, NULL, NULL),
-	(2, 70, NULL, NULL),
-	(3, 90, NULL, NULL),
-	(4, 100, NULL, NULL),
-	(5, 60, NULL, NULL),
-	(6, 55, NULL, NULL),
-	(7, 40, NULL, NULL),
-	(8, 40, NULL, NULL),
-	(9, 100, NULL, NULL),
-	(10, 40, NULL, NULL),
-	(11, 35, NULL, NULL),
-	(12, 30, NULL, NULL),
-	(13, 35, NULL, NULL);
+INSERT INTO isplata (id_zaposlenik, broj_sati, bonus) VALUES
+	(1, NULL, NULL),
+	(2, NULL, NULL),
+	(3, NULL, NULL),
+	(4, NULL, NULL),
+	(5, NULL, NULL),
+	(6, NULL, NULL),
+	(7, NULL, NULL),
+	(8, NULL, NULL),
+	(9, NULL, NULL),
+	(10, NULL, NULL),
+	(11, NULL, NULL),
+	(12, NULL, NULL),
+	(13, NULL, NULL);
 
 INSERT INTO klasa (naziv, stopa_bonusa) VALUES
 	("Mali gradski auto", 1.5),
@@ -288,25 +288,28 @@ INSERT INTO kupac (ime, prezime, email, broj_mobitela, iban) VALUES
 	("Ela", "Pavletić", "epavletic@gmail.com", "040384148", "HR6525000093219268646"),
 	("Dunja", "Zorić", "dzoric@gmail.com", "044547584", "HR2923600009341135835");
 
+INSERT INTO servis (vrsta_servisa, cijena_servisa) VALUES
+	("Mali servis", 250);
+
 INSERT INTO placanje (naziv) VALUES
 	("Gotovina"),
     ("Kartica-jednokratna"),
     ("Poduzece"),
     ("Kartica-na-rate");
 
-INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_automobil, id_placanje, id_kupac) VALUES
-	("2020-04-30 19:21:31", 7, 1, 2, 15),
-	("2019-11-09 17:52:45", 8, 4, 1, 14),
-	("2021-01-04 15:47:59", 9, 8, 3, 13),
-	("2020-03-21 17:25:00", 11, 17, 4, 12),
-	("2019-04-17 18:00:45", 7, 20, 2, 11),
-	("2020-05-10 10:52:50", 8, 28, 4, 10),
-	("2020-08-27 11:41:41", 9, 29, 1, 9),
-	("2021-03-07 12:52:12", 11, 33, 2, 8),
-	("2021-02-28 15:56:14", 7, 37, 1, 7),
-	("2019-12-10 20:11:59", 7, 41, 3, 6),
-	("2019-11-15 10:15:22", 11, 48, 1, 5),
-	("2019-12-02 09:02:24", 11, 49, 3, 4),
-	("2019-12-22 20:21:32", 8, 23, 2, 3),
-	("2020-03-07 19:41:16", 9, 44, 3, 2),
-	("2020-08-11 17:35:42", 8, 51, 1, 1);
+INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_kupac, id_placanje, id_automobil, id_servis) VALUES
+	("2020-04-30 19:21:31", 7, 15, 2, 1, NULL),
+	("2019-11-09 17:52:45", 8, 14, 1, 4, NULL),
+	("2021-01-04 15:47:59", 9, 13, 3, 8, NULL),
+	("2020-03-21 17:25:00", 11, 12, 4, 17, NULL),
+	("2019-04-17 18:00:45", 7, 11, 2, 20, NULL),
+	("2020-05-10 10:52:50", 8, 10, 4, 28, NULL),
+	("2020-08-27 11:41:41", 9, 9, 1, 29, NULL),
+	("2021-03-07 12:52:12", 11, 8, 2, 33, NULL),
+	("2021-02-28 15:56:14", 7, 7, 1, 37, NULL),
+	("2019-12-10 20:11:59", 7, 6, 3, 41, NULL),
+	("2019-11-15 10:15:22", 11, 5, 1, 48, NULL),
+	("2019-12-02 09:02:24", 11, 4, 3, 49, NULL),
+	("2019-12-22 20:21:32", 8, 3, 2, 23, NULL),
+	("2020-03-07 19:41:16", 9, 2, 3, 44, NULL),
+	("2020-08-11 17:35:42", 8, 1, 1, 51, NULL);
