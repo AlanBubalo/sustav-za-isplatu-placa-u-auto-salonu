@@ -289,12 +289,15 @@ INSERT INTO kupac (ime, prezime, email, broj_mobitela, iban) VALUES
 	("Dunja", "Zorić", "dzoric@gmail.com", "044547584", "HR2923600009341135835");
 
 INSERT INTO servis (vrsta_servisa, cijena_servisa) VALUES
-	("Mali servis", 250);
+	("Mali servis", 450),
+    ("Veliki servis", 700),
+    ("Zamjena ljetnih/zimskih guma", 200),
+    ("Unutarnje i vanjsko pranje vozila", 100);
 
 INSERT INTO placanje (naziv) VALUES
 	("Gotovina"),
-    ("Kartica-jednokratna"),
-    ("Poduzece"),
+    ("Kartica-jednokratno"),
+    ("Pouzece"),
     ("Kartica-na-rate");
 
 INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_kupac, id_placanje, id_automobil, id_servis) VALUES
