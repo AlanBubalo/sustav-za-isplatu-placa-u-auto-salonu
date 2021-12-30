@@ -31,6 +31,12 @@ plaćanje u kešu
     do 60 rata = 5 godina
 */
 
+/*
+Sta trebamo napraviti:
+	- cijene zaokruziti da budu reasonable
+    - 
+*/
+
 CREATE TABLE pozicija (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	ime VARCHAR(30) NOT NULL,
@@ -65,7 +71,7 @@ CREATE TABLE klasa (
     stopa_bonusa FLOAT DEFAULT 0
 );
 
-CREATE TABLE automobil(
+CREATE TABLE automobil (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	naziv VARCHAR(50) NOT NULL UNIQUE,
 	id_klasa INTEGER NOT NULL,
@@ -74,11 +80,13 @@ CREATE TABLE automobil(
     CONSTRAINT automobil_klasa_fk FOREIGN KEY (id_klasa) REFERENCES klasa(id)
 );
 
+/*
 CREATE TABLE bonus_sati (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     tip_bonusa VARCHAR(20) NOT NULL UNIQUE,
     postotak FLOAT
 );
+*/
 
 /*
 CREATE TABLE dostava (
@@ -104,8 +112,8 @@ CREATE TABLE kupac (
 
 CREATE TABLE servis (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vrsta_servisa VARCHAR(20) NOT NULL UNIQUE,
-    cijena_servisa INTEGER NOT NULL
+    vrsta VARCHAR(20) NOT NULL UNIQUE,
+    cijena INTEGER NOT NULL
 );
 
 CREATE TABLE placanje (
@@ -155,9 +163,9 @@ INSERT INTO zaposlenik (ime, prezime, id_pozicija, oib, email) VALUES
 	("Stipe", "Stup", 5, "17398368702", "sstup@luxecars.com"),
 	("Velimir", "Kralj", 5, "37610633755", "vkralj@luxecars.com"),
 	("Vladimir", "Jugić", 5, "98345756419", "vjugic@luxecars.com"),
-	("Tihomir", "Tatić", 7, "60064731762", "ttatić@luxecars.com"),
+	("Tihomir", "Tatić", 6, "60064731762", "ttatić@luxecars.com"),
 	("Teuta", "Miškić", 5, "11289379123", "tmiskic@luxecars.com"),
-	("Karolina", "Tunjić", 7, "60896521870", "ktunjić@luxecars.com"),
+	("Karolina", "Tunjić", 6, "60896521870", "ktunjić@luxecars.com"),
 	("Mirko", "Barkica", 7, "35675273263", "mbarkica@luxecars.com"),
 	("Vjekoslav", "Vukovoje", 7, "64685408891", "vvukovoje@luxecars.com"),
 	("Goran", "Strujić", 8, "77352474271", "gstrujic@luxecars.com"),
@@ -208,11 +216,13 @@ INSERT INTO klasa (naziv, stopa_bonusa) VALUES
 	("Električni automobili", 13),
 	("Pick-up", 5);
 
+/*
 INSERT INTO bonus_sati (tip_bonusa, postotak) VALUES
 	("Rad vikendom", 50),
 	("Rad blagdanom", 100),
 	("Noćni rad", 50),
 	("Rad prekovremeno", 25);
+*/
 
 INSERT INTO automobil (naziv, id_klasa, cijena) VALUES
 	("Volkswagen UP", 1, 94953),
@@ -288,7 +298,7 @@ INSERT INTO kupac (ime, prezime, email, broj_mobitela, iban) VALUES
 	("Ela", "Pavletić", "epavletic@gmail.com", "040384148", "HR6525000093219268646"),
 	("Dunja", "Zorić", "dzoric@gmail.com", "044547584", "HR2923600009341135835");
 
-INSERT INTO servis (vrsta_servisa, cijena_servisa) VALUES
+INSERT INTO servis (vrsta, cijena) VALUES
 	("Mali servis", 450),
     ("Veliki servis", 700),
     ("Zamjena ljetnih/zimskih guma", 200),
@@ -296,23 +306,23 @@ INSERT INTO servis (vrsta_servisa, cijena_servisa) VALUES
 
 INSERT INTO placanje (naziv) VALUES
 	("Gotovina"),
-    ("Kartica-jednokratno"),
+    ("Kartica jednokratno"),
     ("Pouzece"),
-    ("Kartica-na-rate");
+    ("Kartica na rate");
 
 INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_kupac, id_placanje, id_automobil, id_servis) VALUES
 	("2020-04-30 19:21:31", 7, 15, 2, 1, NULL),
 	("2019-11-09 17:52:45", 8, 14, 1, 4, NULL),
 	("2021-01-04 15:47:59", 9, 13, 3, 8, NULL),
 	("2020-03-21 17:25:00", 11, 12, 4, 17, NULL),
-	("2019-04-17 18:00:45", 7, 11, 2, 20, NULL),
+	("2019-04-17 18:00:45", 10, 11, 2, NULL, 1),
 	("2020-05-10 10:52:50", 8, 10, 4, 28, NULL),
-	("2020-08-27 11:41:41", 9, 9, 1, 29, NULL),
+	("2020-08-27 11:41:41", 12, 9, 1, NULL, 2),
 	("2021-03-07 12:52:12", 11, 8, 2, 33, NULL),
 	("2021-02-28 15:56:14", 7, 7, 1, 37, NULL),
 	("2019-12-10 20:11:59", 7, 6, 3, 41, NULL),
 	("2019-11-15 10:15:22", 11, 5, 1, 48, NULL),
 	("2019-12-02 09:02:24", 11, 4, 3, 49, NULL),
-	("2019-12-22 20:21:32", 8, 3, 2, 23, NULL),
+	("2019-12-22 20:21:32", 12, 3, 2, NULL, 4),
 	("2020-03-07 19:41:16", 9, 2, 3, 44, NULL),
 	("2020-08-11 17:35:42", 8, 1, 1, 51, NULL);
