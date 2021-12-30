@@ -23,7 +23,7 @@ Dostavljač će imati poseban bonus, za putne troškove.
 
 
 		Vrste plaćanja
-plaćanje poduzećem (za velike firme)
+plaćanje pouzećem (za velike firme)
 plaćanje karticom
 plaćanje u kešu
 	
@@ -237,7 +237,7 @@ INSERT INTO automobil (naziv, id_klasa, cijena) VALUES
 	("Hyundai I30", 3, 128760),
 	("Seat Leon", 3, 142865),
 	("Mini Cooper Clubman", 3, 150000),
-	("BMW Serija 1 F52", 3, 189321),
+	("BMW Serija 1 F21", 3, 189321),
 	("Mercedes A Klasa", 3, 196541),
 	("Škoda Octavia", 4, 157868),
 	("Volkswagen Passat", 4, 177409),
@@ -326,3 +326,43 @@ INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_kupac, id_placanje, id_aut
 	("2019-12-22 20:21:32", 12, 3, 2, NULL, 4),
 	("2020-03-07 19:41:16", 9, 2, 3, 44, NULL),
 	("2020-08-11 17:35:42", 8, 1, 1, 51, NULL);
+    
+    
+    # Zadatak: Funkcija koja vrača satnicu određenog zaposlenika.
+DROP FUNCTION IF EXISTS satnica;
+DELIMITER //
+CREATE FUNCTION satnica_zaposlenika(p_id_zaposlenik INTEGER) RETURNS INTEGER
+DETERMINISTIC
+BEGIN
+    RETURN (SELECT novac_po_satu
+        FROM zaposlenik
+            INNER JOIN pozicija
+            ON id_pozicija = pozicija.id AND zaposlenik.id = p_id_zaposlenik);
+END//
+DELIMITER ;
+
+# Primjer:
+SELECT satnica_zaposlenika(5) FROM DUAL;
+
+
+# Zadatak: Funkcija koja vrača broj računa koji je zaposlenik izdao, treba izbaciti -1 ako zaposlenik nije niti jedan račun izdao.
+DROP FUNCTION IF EXISTS broj_racuna;
+DELIMITER //
+CREATE FUNCTION broj_racuna(p_id_zaposlenik INTEGER) RETURNS INTEGER
+DETERMINISTIC
+BEGIN
+    DECLARE result INTEGER DEFAULT 0;
+    SELECT COUNT(*) INTO result
+    FROM racun
+        INNER JOIN zaposlenik
+        ON id_zaposlenik = zaposlenik.id AND id_zaposlenik = p_id_zaposlenik
+    GROUP BY id_zaposlenik;
+    IF result = 0 THEN
+        SET result = -1;
+    END IF;
+    RETURN result;
+END//
+DELIMITER ;
+
+# Primjer:
+SELECT broj_racuna(10) FROM DUAL;
