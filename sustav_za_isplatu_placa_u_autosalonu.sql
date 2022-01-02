@@ -402,6 +402,21 @@ INSERT INTO prisutnost (id_zaposlenik, datum, broj_sati) VALUES
 (30,  "2020-05-06 10:10:20", 7);
 
 
+   # Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. --LUKA
+DROP FUNCTION IF EXISTS satnica_zaposlenika;
+DELIMITER //
+CREATE FUNCTION satnica_zaposlenika(p_id_zaposlenik INTEGER) RETURNS INTEGER
+DETERMINISTIC
+BEGIN
+    RETURN (SELECT novac_po_satu
+        FROM zaposlenik
+            INNER JOIN pozicija
+            ON id_pozicija = pozicija.id AND zaposlenik.id = p_id_zaposlenik);
+END//
+DELIMITER ;
+
+# Primjer:
+SELECT satnica_zaposlenika(5) FROM DUAL;
 
 
 #2 Zadatak: Funkcija koja vrača broj računa koji je zaposlenik izdao, treba izbaciti -1 ako zaposlenik nije niti jedan račun izdao. -- Mihael
@@ -423,7 +438,7 @@ BEGIN
 END//
 DELIMITER ;
 
-#3 Zadatak: Zbroj sati rada od određenog zaposlenika kroz period od jednog mjeseca
+#3 Zadatak: Zbroj sati rada od određenog zaposlenika u određenom mjesecu
 
 DROP FUNCTION IF EXISTS sati_mjesec;
 DELIMITER //
@@ -446,22 +461,73 @@ DELIMITER ;
 
 SELECT sati_mjesec (10, 1, 2020);
 
+#4 ZADATAK: Izračun plaće ordeđenog zaposlenika u oređenom mjesecu
 
-
-
-
-   # Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. --LUKA
-DROP FUNCTION IF EXISTS satnica;
+DROP FUNCTION IF EXISTS placa_mjesec;
 DELIMITER //
-CREATE FUNCTION satnica_zaposlenika(p_id_zaposlenik INTEGER) RETURNS INTEGER
+CREATE FUNCTION placa_mjesec (p_id_zaposlenik INTEGER, p_mjesec INTEGER, p_godina INTEGER) RETURNS FLOAT
 DETERMINISTIC
 BEGIN
-    RETURN (SELECT novac_po_satu
-        FROM zaposlenik
-            INNER JOIN pozicija
-            ON id_pozicija = pozicija.id AND zaposlenik.id = p_id_zaposlenik);
+DECLARE REZ FLOAT;
+SELECT SUM(broj_sati_sa_bonusima) INTO REZ
+FROM prisutnost  
+WHERE YEAR(datum)=p_godina AND MONTH(datum)=p_mjesec AND id_zaposlenik = p_id_zaposlenik
+GROUP BY id_zaposlenik;
+IF (NOT REZ) THEN RETURN 0;
+END IF;   
+RETURN REZ * satnica_zaposlenika(p_id_zaposlenik);
 END//
 DELIMITER ;
+
+
+SELECT placa_mjesec (17,1,2020);
+
+#5 ZADATAK: Procedura sprema auto u različite group ovisno o cijeni (grupe bitno_prodati i manje_bitno)
+DROP PROCEDURE IF EXISTS sortiranje_auta;
+DELIMITER //
+CREATE PROCEDURE sortiranje_auta(IN limit_cij INTEGER, OUT bitno_prodati VARCHAR(4000), OUT manje_bitno VARCHAR(4000))
+BEGIN
+DECLARE auto VARCHAR(50) DEFAULT "";
+DECLARE dod_cijena INTEGER DEFAULT 0;
+ DECLARE finished INTEGER DEFAULT 0;
+
+ DECLARE cur CURSOR FOR
+ SELECT naziv, cijena FROM automobil;
+
+ DECLARE CONTINUE HANDLER FOR SQLSTATE '02000'
+ BEGIN
+ SET finished = 1;
+ SET bitno_prodati = CONCAT("UNUTAR BLOKA",";",bitno_prodati);
+  SET manje_bitno = CONCAT("UNUTAR BLOKA",";",manje_bitno);
+ END;
+ 
+ SET bitno_prodati = "";
+ SET manje_bitno = "";
+
+ OPEN CUR;
+
+ iteriraj_automobile: LOOP
+
+ FETCH cur INTO auto, dod_cijena;
+ 
+
+ IF finished = 1 THEN
+ LEAVE iteriraj_automobile;
+ END IF;
+ IF (dod_cijena<limit_cij) THEN  SET manje_bitno= CONCAT(auto,"/",manje_bitno);
+ELSE SET bitno_prodati= CONCAT(auto,"/",bitno_prodati);
+END IF;
+ END LOOP iteriraj_automobile;
+
+ CLOSE cur;
+
+END //
+DELIMITER ;
+
+CALL sortiranje_auta(150000,@bitno_prodati,@manje_bitno);
+SELECT @bitno_prodati,@manje_bitno;
+
+ 
 
 # Primjer:
 SELECT satnica_zaposlenika(5) FROM DUAL;
