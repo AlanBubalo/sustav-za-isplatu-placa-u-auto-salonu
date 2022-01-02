@@ -52,6 +52,7 @@ CREATE TABLE zaposlenik(
     id_pozicija INTEGER NOT NULL,
     oib CHAR(11) NOT NULL UNIQUE,
     email VARCHAR(50) NOT NULL UNIQUE,
+    datum_zaposlenja DATETIME NOT NULL,
     UNIQUE (ime, prezime),
     CONSTRAINT zaposlenik_email_ck CHECK (email LIKE "%@%"),
     CONSTRAINT zaposlenik_pozicija_fk FOREIGN KEY (id_pozicija) REFERENCES pozicija(id)
@@ -112,7 +113,7 @@ CREATE TABLE kupac (
 
 CREATE TABLE servis (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    vrsta VARCHAR(20) NOT NULL UNIQUE,
+    vrsta VARCHAR(50) NOT NULL UNIQUE,
     cijena INTEGER NOT NULL
 );
 
@@ -154,7 +155,7 @@ INSERT INTO pozicija (ime, opis, novac_po_satu) VALUES
 	("Čistać Automobila", "Održava automobile u izložbenom stanju", 35);
 
 INSERT INTO zaposlenik (ime, prezime, id_pozicija, oib, email) VALUES
-	("Mlohael", "Ether", 1, "95841550335", "mether@luxecars.com"),
+	("Mlohael", "Ether", 1, "95841550335", "mether@luxecars.com", "2020-04-30 19:21:31"),
 	("Luka", "Dudak", 2, "70125027634", "ldudak@luxecars.com"),
 	("Karlo", "Lugomer", 3, "92670682735", "klugomer@luxecars.com"),
 	("Jessica", "Zoranović", 2, "16096814870", "jzoranovic@luxecars.com"),
@@ -366,3 +367,19 @@ DELIMITER ;
 
 # Primjer:
 SELECT broj_racuna(10) FROM DUAL;
+
+
+DROP TRIGGER IF EXISTS
+DELIMITER //
+CREATE TRIGGER bi_zaposlenik
+	BEFORE INSERT ON zaposlenik
+	FOR EACH ROW
+BEGIN
+	IF (SELECT new.datum_zaposlenja FROM zaposlenik) > NOW() THEN
+		SIGNAL SQLSTATE "40000"
+        SET message_text = "Datum zaposlenja je preko današnjeg datuma.";
+	END IF;
+END//
+DELIMITER ;
+
+INSERT INTO
