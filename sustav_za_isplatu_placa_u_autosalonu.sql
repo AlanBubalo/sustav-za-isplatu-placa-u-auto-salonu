@@ -348,7 +348,7 @@ INSERT INTO praznici (naziv, datum) VALUES
 ("Tijelovo","-06-16"),
 ("Dan svih svetih", "-01-11");
 
-# Zadatak: Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) 
+#1 Zadatak: Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) --Mihael
 DROP TRIGGER IF EXISTS bi_prisutnost;
 DELIMITER //
 CREATE TRIGGER bi_prisutnost
@@ -402,24 +402,9 @@ INSERT INTO prisutnost (id_zaposlenik, datum, broj_sati) VALUES
 (30,  "2020-05-06 10:10:20", 7);
 
 
-    # Zadatak: Funkcija koja vrača satnicu određenog zaposlenika.
-DROP FUNCTION IF EXISTS satnica;
-DELIMITER //
-CREATE FUNCTION satnica_zaposlenika(p_id_zaposlenik INTEGER) RETURNS INTEGER
-DETERMINISTIC
-BEGIN
-    RETURN (SELECT novac_po_satu
-        FROM zaposlenik
-            INNER JOIN pozicija
-            ON id_pozicija = pozicija.id AND zaposlenik.id = p_id_zaposlenik);
-END//
-DELIMITER ;
-
-# Primjer:
-SELECT satnica_zaposlenika(5) FROM DUAL;
 
 
-# Zadatak: Funkcija koja vrača broj računa koji je zaposlenik izdao, treba izbaciti -1 ako zaposlenik nije niti jedan račun izdao.
+#2 Zadatak: Funkcija koja vrača broj računa koji je zaposlenik izdao, treba izbaciti -1 ako zaposlenik nije niti jedan račun izdao. -- Mihael
 DROP FUNCTION IF EXISTS broj_racuna;
 DELIMITER //
 CREATE FUNCTION broj_racuna(p_id_zaposlenik INTEGER) RETURNS INTEGER
@@ -438,10 +423,53 @@ BEGIN
 END//
 DELIMITER ;
 
+#3 Zadatak: Zbroj sati rada od određenog zaposlenika kroz period od jednog mjeseca
+
+DROP FUNCTION IF EXISTS sati_mjesec;
+DELIMITER //
+CREATE FUNCTION sati_mjesec (p_id_zaposlenik INTEGER, p_mjesec INTEGER, p_godina INTEGER) RETURNS FLOAT
+DETERMINISTIC
+BEGIN
+DECLARE REZ FLOAT;
+SELECT SUM(broj_sati) INTO REZ
+FROM prisutnost  
+WHERE YEAR(datum)=p_godina AND MONTH(datum)=p_mjesec AND id_zaposlenik = p_id_zaposlenik
+GROUP BY id_zaposlenik;
+IF (REZ) THEN RETURN REZ;
+ELSE RETURN 0;
+END IF;
+   
+END//
+DELIMITER ;
+
+
+
+SELECT sati_mjesec (10, 1, 2020);
+
+
+
+
+
+   # Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. --LUKA
+DROP FUNCTION IF EXISTS satnica;
+DELIMITER //
+CREATE FUNCTION satnica_zaposlenika(p_id_zaposlenik INTEGER) RETURNS INTEGER
+DETERMINISTIC
+BEGIN
+    RETURN (SELECT novac_po_satu
+        FROM zaposlenik
+            INNER JOIN pozicija
+            ON id_pozicija = pozicija.id AND zaposlenik.id = p_id_zaposlenik);
+END//
+DELIMITER ;
+
+# Primjer:
+SELECT satnica_zaposlenika(5) FROM DUAL;
+
 # Primjer:
 SELECT broj_racuna(10) FROM DUAL;
 
-# Zadatak: Okidač koji nam osigura da datum zaposlenja postane trenutni datum ako pokušamo zaposliti nekoga u budućem vremenu.
+# Zadatak: Okidač koji nam osigura da datum zaposlenja postane trenutni datum ako pokušamo zaposliti nekoga u budućem vremenu.-- Bubalo
 DROP TRIGGER IF EXISTS bi_zaposlenik;
 DELIMITER //
 CREATE TRIGGER bi_zaposlenik
@@ -455,3 +483,5 @@ END//
 DELIMITER ;
 
 SELECT * FROM prisutnost
+
+
