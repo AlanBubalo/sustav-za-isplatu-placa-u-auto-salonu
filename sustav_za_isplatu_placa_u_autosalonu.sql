@@ -17,16 +17,6 @@ USE isplata_placa;
      - Knjigovođa
      - Dostavljač
 
-
-Dostavljač služi za to kada kupac naruči auto, naš dostavljač odveze auto do njega.
-Dostavljač će imati poseban bonus, za putne troškove.
-
-
-		Vrste plaćanja
-plaćanje pouzećem (za velike firme)
-plaćanje karticom
-plaćanje u kešu
-	
     moguće je plaćat na rate 
     do 60 rata = 5 godina
 */
@@ -34,7 +24,6 @@ plaćanje u kešu
 /*
 Sta trebamo napraviti:
 	- cijene zaokruziti da budu reasonable
-    - 
 */
 
 CREATE TABLE pozicija (
@@ -106,13 +95,15 @@ CREATE TABLE kupac (
 	broj_mobitela VARCHAR(10) UNIQUE,
 	iban VARCHAR(50) UNIQUE,
     UNIQUE (ime, prezime),
-	CONSTRAINT kupac_email_ck CHECK (email LIKE "%@%")
+	CONSTRAINT kupac_email_ck CHECK (email LIKE "%@%"),
+    CONSTRAINT kupac_iban_ck CHECK (iban LIKE "HR%")
 );
 
 CREATE TABLE servis (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
     vrsta VARCHAR(50) NOT NULL UNIQUE,
-    cijena INTEGER NOT NULL
+    cijena INTEGER NOT NULL,
+    CONSTRAINT servis_cijena_ck CHECK (cijena > 0)
 );
 
 CREATE TABLE placanje (
@@ -128,7 +119,6 @@ CREATE TABLE racun (
     id_placanje INTEGER NOT NULL,
     id_automobil INTEGER,
     id_servis INTEGER,
-    -- CONSTRAINT racun_datum_izdavanja_ck CHECK (datum_izdavanja < NOW()),
     CONSTRAINT racun_auto_or_servis_ck CHECK ((id_servis != NULL AND id_automobil = NULL) OR (id_servis = NULL AND id_automobil != NULL)),
 	CONSTRAINT racun_zaposlenik_fk FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id),
     CONSTRAINT racun_kupac_fk FOREIGN KEY (id_kupac) REFERENCES kupac(id),
@@ -138,18 +128,20 @@ CREATE TABLE racun (
 );
 
 CREATE TABLE praznici (
-id INTEGER PRIMARY KEY AUTO_INCREMENT,
-naziv VARCHAR(50) NOT NULL,
-datum VARCHAR(50) NOT NULL
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+	naziv VARCHAR(50) NOT NULL UNIQUE,
+	datum VARCHAR(6) NOT NULL
+    CONSTRAINT praznici_datum_ck CHECK (datum LIKE "-%-%")
 );
 
 CREATE TABLE prisutnost (
-id INTEGER PRIMARY KEY AUTO_INCREMENT,
-id_zaposlenik INTEGER NOT NULL,
-datum DATETIME DEFAULT NOW(),
-broj_sati FLOAT DEFAULT 0,
-broj_sati_sa_bonusima FLOAT DEFAULT 0,
-CONSTRAINT prisutnost_zaposlenik_fk FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id)
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+	id_zaposlenik INTEGER NOT NULL,
+	datum DATETIME DEFAULT NOW(),
+	broj_sati FLOAT NOT NULL,
+	broj_sati_sa_bonusima FLOAT DEFAULT 0,
+	CONSTRAINT prisutnost_zaposlenik_fk FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id),
+    CONSTRAINT prisutnost_broj_sati_ck CHECK (broj_sati > 0)
 );
 
 INSERT INTO pozicija (ime, opis, novac_po_satu) VALUES
@@ -169,36 +161,36 @@ INSERT INTO pozicija (ime, opis, novac_po_satu) VALUES
 
 INSERT INTO zaposlenik (ime, prezime, id_pozicija, oib, email, datum_zaposlenja) VALUES
 	("Mlohael", "Ether", 1, "95841550335", "mether@luxecars.com", "2019-04-30 12:21:31"),
-	("Luka", "Dudak", 2, "70125027634", "ldudak@luxecars.com", "2020-12-30 13:21:51"),
-	("Karlo", "Lugomer", 3, "92670682735", "klugomer@luxecars.com", "2020-06-16 16:21:34"),
-	("Jessica", "Zoranović", 2, "16096814870", "jzoranovic@luxecars.com", "2020-07-10 14:21:38"),
+	("Luka", "Dudak", 2, "70125027634", "ldudak@luxecars.com", "2020-04-30 13:21:51"),
+	("Karlo", "Lugomer", 3, "92670682735", "klugomer@luxecars.com", "2020-04-16 16:21:34"),
+	("Jessica", "Zoranović", 2, "16096814870", "jzoranovic@luxecars.com", "2020-03-10 14:21:38"),
 	("Andrej", "Konki", 4, "83871296540", "konkay69420@luxecars.com", "2020-04-30 15:21:55"),
 	("Branimir", "Horvat", 4, "97236274923", "bhorvat@luxecars.com", "2020-04-20 16:21:44"),
-	("Stipe", "Stup", 5, "17398368702", "sstup@luxecars.com", "2020-12-16 12:21:39"),
-	("Velimir", "Kralj", 5, "37610633755", "vkralj@luxecars.com", "2020-11-30 11:21:32"),
-	("Vladimir", "Jugić", 5, "98345756419", "vjugic@luxecars.com", "2020-09-30 12:21:35"),
-	("Tihomir", "Tatić", 6, "60064731762", "ttatić@luxecars.com", "2020-08-03 13:21:37"),
-	("Teuta", "Miškić", 5, "11289379123", "tmiskic@luxecars.com", "2020-09-10 14:21:36"),
-	("Karolina", "Tunjić", 6, "60896521870", "ktunjić@luxecars.com", "2020-10-30 15:21:30"),
-	("Mirko", "Barkica", 7, "35675273263", "mbarkica@luxecars.com", "2020-11-22 12:21:35"),
+	("Stipe", "Stup", 5, "17398368702", "sstup@luxecars.com", "2020-03-16 12:21:39"),
+	("Velimir", "Kralj", 5, "37610633755", "vkralj@luxecars.com", "2020-03-30 11:21:32"),
+	("Vladimir", "Jugić", 5, "98345756419", "vjugic@luxecars.com", "2020-04-30 12:21:35"),
+	("Tihomir", "Tatić", 6, "60064731762", "ttatić@luxecars.com", "2020-04-03 13:21:37"),
+	("Teuta", "Miškić", 5, "11289379123", "tmiskic@luxecars.com", "2020-04-10 14:21:36"),
+	("Karolina", "Tunjić", 6, "60896521870", "ktunjić@luxecars.com", "2020-04-30 15:21:30"),
+	("Mirko", "Barkica", 7, "35675273263", "mbarkica@luxecars.com", "2020-03-22 12:21:35"),
 	("Vjekoslav", "Vukovoje", 7, "64685408891", "vvukovoje@luxecars.com", "2020-01-30 13:21:34"),
 	("Goran", "Strujić", 8, "77352474271", "gstrujic@luxecars.com", "2020-02-08 11:21:20"),
 	("Golub", "Gvozdenko", 8, "56198404250", "ggvozdenko@luxecars.com", "2020-04-09 12:21:19"),
-	("Mario", "Valjak", 10, "69233667398", "mvaljak@luxecars.com", "2020-04-10 14:21:19"),
+	("Tomislav", "Valjak", 10, "69233667398", "mvaljak@luxecars.com", "2020-04-10 14:21:19"),
 	("Mladen", "Jantoš", 10, "20761707492", "mjantos@luxecars.com", "2020-03-11 16:21:18"),
-	("Robert", "Butkić", 10, "07698168587", "rbutkic@luxecars.com", "2020-08-12 14:21:17"),
-	("Siniša", "Miščević", 10, "23587461757", "smiscevic@luxecars.com", "2020-10-17 11:21:16"),
-	("Travan", "Dilović", 6, "15865867042", "tdilovic@luxecars.com", "2020-05-13 12:21:15"),
-	("Jovana", "Kreketić", 6, "89714241090", "jkreketic@luxecars.com", "2020-05-14 11:21:14"),
-	("Tomas", "Crnić", 9, "65013824596", "tcrnic@luxecars.com", "2020-06-16 13:21:21"),
-	("Ernjoslav", "Negomir", 9, "33658723917", "enegomir@luxecars.com", "2020-02-27 14:21:31"),
-	("Alan", "Šibanović", 9, "68956555044", "asibanovic@luxecars.com", "2020-01-22 13:21:31"),
-	("Tamara", "Galić", 11, "65013824796", "tgalic@luxecars.com", "2020-03-20 12:21:31"),
+	("Robert", "Butkić", 10, "07698168587", "rbutkic@luxecars.com", "2020-03-12 14:21:17"),
+	("Siniša", "Miščević", 10, "23587461757", "smiscevic@luxecars.com", "2020-03-17 11:21:16"),
+	("Travan", "Dilović", 6, "15865867042", "tdilovic@luxecars.com", "2020-04-13 12:21:15"),
+	("Jovana", "Kreketić", 6, "89714241090", "jkreketic@luxecars.com", "2020-04-14 11:21:14"),
+	("Tomas", "Crnić", 9, "65013824596", "tcrnic@luxecars.com", "2020-04-16 13:21:21"),
+	("Ernjoslav", "Negomir", 9, "33658723917", "enegomir@luxecars.com", "2020-04-27 14:21:31"),
+	("Alan", "Šibanović", 9, "68956555044", "asibanovic@luxecars.com", "2020-04-22 13:21:31"),
+	("Tamara", "Galić", 11, "65013824796", "tgalic@luxecars.com", "2020-04-20 12:21:31"),
 	("Andrijana", "Brzić", 11, "08728711594", "abrzić@luxecars.com", "2020-03-10 11:21:31"),
-	("Mihael", "Bokser", 12, "11006286754", "mbokser@luxecars.com", "2020-06-15 10:21:31"),
+	("Mihael", "Bokser", 12, "11006286754", "mbokser@luxecars.com", "2020-03-15 10:21:31"),
 	("Jeffery", "Bizos", 12, "87017816387", "jbizos@luxecars.com", "2020-04-14 12:21:31"),
-	("Orianna", "Ombretta", 13, "07151025941", "oombretta@luxecars.com", "2020-08-16 13:21:31"),
-	("Danko", "Bananković", 13, "01405821019", "dbanankovic@luxecars.com", "2020-11-30 11:21:31");
+	("Orianna", "Ombretta", 13, "07151025941", "oombretta@luxecars.com", "2020-04-16 13:21:31"),
+	("Danko", "Bananković", 13, "01405821019", "dbanankovic@luxecars.com", "2020-04-30 11:21:31");
 
 INSERT INTO isplata (id_zaposlenik, broj_sati, bonus) VALUES
 	(1, NULL, NULL),
@@ -339,160 +331,175 @@ INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_kupac, id_placanje, id_aut
 	("2019-12-02 09:02:24", 11, 4, 3, 49, NULL),
 	("2019-12-22 20:21:32", 12, 3, 2, NULL, 4),
 	("2020-03-07 19:41:16", 9, 2, 3, 44, NULL),
-	("2020-08-11 17:35:42", 8, 1, 1, 51, NULL);
+	("2020-08-11 17:35:42", 8, 1, 1, 51, NULL),
+    ("2020-09-11 17:40:4", 8, 15, 1, NULL, 3);
     
 INSERT INTO praznici (naziv, datum) VALUES 
-("Bozic", "-12-25"),
-("Nova godina", "-01-01"),
-("Praznik rada", "-05-01"),
-("Tijelovo","-06-16"),
-("Dan svih svetih", "-01-11");
+	("Bozic", "-12-25"),
+	("Nova godina", "-01-01"),
+	("Praznik rada", "-05-01"),
+	("Tijelovo","-06-16"),
+	("Dan svih svetih", "-01-11");
 
-#1 Zadatak: Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) --Mihael
+# 1. Zadatak: Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) -- Mihael
+
 DROP TRIGGER IF EXISTS bi_prisutnost;
 DELIMITER //
 CREATE TRIGGER bi_prisutnost
 	BEFORE INSERT ON prisutnost
 	FOR EACH ROW
 BEGIN
-DECLARE bonus FLOAT;
-DECLARE mjesecdan VARCHAR(6);
-SET new.broj_sati_sa_bonusima = new.broj_sati;
-SET bonus = new.broj_sati - 8;
-SELECT CONCAT("-",DATE_FORMAT(new.datum,"%m"),"-", DATE_FORMAT(new.datum,"%d")) INTO mjesecdan;
-IF new.broj_sati > 8 THEN SET new.broj_sati_sa_bonusima = 8 + (bonus * 1.5);
-END IF;
-IF mjesecdan IN (SELECT datum FROM praznici) THEN SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
-END IF;
-IF DAYNAME(new.datum) = "Sunday" THEN SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
-END IF;
+	DECLARE bonus FLOAT;
+	DECLARE mjesecdan VARCHAR(6);
+	SET new.broj_sati_sa_bonusima = new.broj_sati;
+	SET bonus = new.broj_sati - 8;
+	SELECT CONCAT("-",DATE_FORMAT(new.datum,"%m"),"-", DATE_FORMAT(new.datum,"%d")) INTO mjesecdan;
+    
+    # Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%)
+	IF new.broj_sati > 8 THEN
+		SET new.broj_sati_sa_bonusima = 8 + (bonus * 1.5);
+	END IF;
+    
+    # Okidač također osigurava ako je zaposlenik radio na nedjelju ili jedan od praznika da mu se dodaje bonus od 50% na satnicu
+	IF mjesecdan IN (SELECT datum FROM praznici) THEN
+		SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
+	END IF;
+	IF DAYNAME(new.datum) = "Sunday" THEN
+		SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
+	END IF;
+    
+    # Okidač će izbaciti grešku ako je zaposlenik upisan prisutan na poslu prije datuma svog zaposlenja
+    IF new.datum < (SELECT datum_zaposlenja FROM zaposlenik WHERE id = new.id_zaposlenik) THEN
+		SIGNAL SQLSTATE '40000'
+		SET MESSAGE_TEXT = 'Zaposlenik nije mogao otići na posao prije nego li se zaposlio (provjerite datum)';
+	END IF;
 END//
 DELIMITER ;
 
 INSERT INTO prisutnost (id_zaposlenik, datum, broj_sati) VALUES 
-(1,  "2019-05-02 12:21:31", 6),
-(2,  "2020-06-03 10:30:21", 8),
-(3,  "2020-06-04 10:20:22", 10),
-(4,  "2020-06-05 10:10:23", 9),
-(5,  "2020-06-06 10:10:26", 5),
-(6,  "2020-10-07 10:50:28", 6),
-(7,  "2020-11-08 10:50:29", 7),
-(8,  "2020-08-09 10:40:21", 8),
-(9,  "2020-12-02 10:30:21", 10),
-(10,  "2020-11-01 10:20:20", 7),
-(11,  "2020-10-01 10:20:20", 5),
-(12,  "2020-07-01 10:10:20", 4),
-(13,  "2020-04-01 10:10:22", 6),
-(14,  "2020-03-01 10:10:23", 7),
-(15,  "2020-02-02 10:40:24", 8),
-(16,  "2020-01-03 10:30:20", 8),
-(17,  "2020-01-04 10:50:26", 8),
-(18,  "2020-01-07 10:50:29", 8),
-(19,  "2020-01-08 10:40:28", 8),
-(20,  "2020-01-02 10:30:25", 8),
-(21,  "2020-02-03 10:20:24", 8),
-(22,  "2020-03-01 10:10:23", 8),
-(23,  "2020-03-06 10:10:22", 10),
-(24,  "2020-03-07 10:20:22", 9),
-(25,  "2020-03-02 10:20:21", 9),
-(26,  "2020-09-03 10:30:22", 9),
-(27,  "2020-03-04 10:40:20", 8),
-(28,  "2020-04-04 10:20:20", 8),
-(29,  "2020-04-05 10:30:20", 8),
-(30,  "2020-05-06 10:10:20", 7),
-(1,  "2019-09-02 09:42:41", 8),
-(2,  "2020-10-03 11:10:11", 5),
-(3,  "2020-10-04 11:45:52", 1),
-(4,  "2020-10-05 10:01:13", 6),
-(5,  "2020-09-06 10:14:34", 10),
-(6,  "2020-09-07 09:52:56", 7),
-(7,  "2020-10-08 10:55:13", 7),
-(8,  "2020-10-09 08:54:52", 9),
-(9,  "2020-10-02 09:53:52", 8),
-(10,  "2020-09-01 10:09:20", 8),
-(11,  "2020-09-01 09:10:10", 4),
-(12,  "2020-10-01 11:14:09", 1),
-(13,  "2020-09-01 11:44:54", 4),
-(14,  "2020-09-01 11:24:05", 2),
-(15,  "2020-09-02 10:42:01", 10),
-(16,  "2020-09-03 11:01:42", 9),
-(17,  "2020-09-04 09:42:53", 3),
-(18,  "2020-10-07 10:10:31", 6),
-(19,  "2020-10-08 08:53:41", 7),
-(20,  "2020-10-02 10:10:05", 7),
-(21,  "2020-09-03 08:41:14", 8),
-(22,  "2020-09-01 10:09:03", 7),
-(23,  "2020-10-06 10:01:43", 2),
-(24,  "2020-10-07 10:46:22", 10),
-(25,  "2020-10-02 09:34:21", 5),
-(26,  "2020-10-03 11:20:32", 9),
-(27,  "2020-09-04 08:13:14", 10),
-(28,  "2020-09-04 10:15:40", 5),
-(29,  "2020-10-05 10:52:10", 4),
-(30,  "2020-09-06 09:31:43", 5),
-(1,  "2020-06-02 13:25:35", 7),
-(2,  "2020-06-04 11:40:27", 9),
-(3,  "2020-06-06 11:15:22", 8),
-(4,  "2020-06-08 10:19:59", 7),
-(5,  "2020-06-10 10:35:26", 6),
-(6,  "2020-06-12 10:43:53", 7),
-(7,  "2020-06-14 11:21:29", 8),
-(8,  "2020-06-16 12:10:30", 9),
-(9,  "2020-06-18 10:39:31", 9),
-(10,  "2020-06-20 13:12:13", 6),
-(11,  "2020-16-22 10:19:05", 7),
-(12,  "2020-06-24 10:15:20", 8),
-(13,  "2020-06-26 10:32:22", 9),
-(14,  "2020-06-28 10:43:23", 6),
-(15,  "2020-06-30 10:50:16", 9),
-(16,  "2020-07-01 10:30:20", 8),
-(17,  "2020-07-03 10:48:26", 8),
-(18,  "2020-07-05 09:50:29", 7),
-(19,  "2020-07-07 10:30:28", 10),
-(20,  "2020-07-09 10:20:25", 9),
-(21,  "2020-07-11 11:10:24", 7),
-(22,  "2020-07-13 10:53:23", 8),
-(23,  "2020-07-15 10:36:22", 10),
-(24,  "2020-07-17 08:20:22", 8),
-(25,  "2020-07-19 10:29:57", 7),
-(26,  "2020-07-21 10:43:22", 6),
-(27,  "2020-07-23 12:24:20", 8),
-(28,  "2020-07-25 10:10:20", 9),
-(29,  "2020-07-27 10:13:20", 7),
-(30,  "2020-07-29 11:05:20", 9),
-(1,  "2019-04-15 12:21:31", 6),
-(2,  "2020-04-17 10:35:21", 8),
-(3,  "2020-04-23 06:24:22", 10),
-(4,  "2020-04-07 06:12:23", 9),
-(5,  "2020-04-26 06:03:26", 5),
-(6,  "2020-04-27 08:53:28", 6),
-(7,  "2020-04-21 07:59:29", 7),
-(8,  "2020-04-11 08:41:21", 8),
-(9,  "2020-04-12 08:31:21", 10),
-(10,  "2020-04-13 10:12:20", 7),
-(11,  "2020-04-14 13:26:20", 5),
-(12,  "2020-04-10 13:07:20", 4),
-(13,  "2020-04-16 14:04:22", 6),
-(14,  "2020-04-17 14:16:23", 7),
-(15,  "2020-04-18 10:48:24", 8),
-(16,  "2020-05-01 12:31:20", 8),
-(17,  "2020-05-02 12:55:26", 8),
-(18,  "2020-05-03 10:52:29", 8),
-(19,  "2020-05-10 11:45:28", 8),
-(20,  "2020-05-11 11:34:25", 8),
-(21,  "2020-05-13 10:24:24", 8),
-(22,  "2020-05-15 10:14:23", 8),
-(23,  "2020-05-16 10:15:22", 10),
-(24,  "2020-05-17 10:22:22", 9),
-(25,  "2020-05-19 10:21:21", 9),
-(26,  "2020-05-21 09:32:22", 9),
-(27,  "2020-05-22 09:42:20", 8),
-(28,  "2020-05-24 09:15:20", 8),
-(29,  "2020-05-25 08:08:20", 8),
-(30,  "2020-05-27 08:08:20", 7);
+	(1,  "2019-06-02 12:21:31", 6),
+	(2,  "2020-06-03 10:30:21", 8),
+	(3,  "2020-06-04 10:20:22", 10),
+	(4,  "2020-06-05 10:10:23", 9),
+	(5,  "2020-06-06 10:10:26", 5),
+	(6,  "2020-10-07 10:50:28", 6),
+	(7,  "2020-11-08 10:50:29", 7),
+	(8,  "2020-08-09 10:40:21", 8),
+	(9,  "2020-12-02 10:30:21", 10),
+	(10,  "2020-11-01 10:20:20", 7),
+	(11,  "2020-10-01 10:20:20", 5),
+	(12,  "2020-07-01 10:10:20", 4),
+	(13,  "2020-07-01 10:10:22", 6),
+	(14,  "2020-07-01 10:10:23", 7),
+	(15,  "2020-07-02 10:40:24", 8),
+	(16,  "2020-07-03 10:30:20", 8),
+	(17,  "2020-07-04 10:50:26", 8),
+	(18,  "2020-07-07 10:50:29", 8),
+	(19,  "2020-07-08 10:40:28", 8),
+	(20,  "2020-07-02 10:30:25", 8),
+	(21,  "2020-07-03 10:20:24", 8),
+	(22,  "2020-07-01 10:10:23", 8),
+	(23,  "2020-07-06 10:10:22", 10),
+	(24,  "2020-07-07 10:20:22", 9),
+	(25,  "2020-07-02 10:20:21", 9),
+	(26,  "2020-09-03 10:30:22", 9),
+	(27,  "2020-07-04 10:40:20", 8),
+	(28,  "2020-07-04 10:20:20", 8),
+	(29,  "2020-07-05 10:30:20", 8),
+	(30,  "2020-05-06 10:10:20", 7),
+	(1,  "2019-09-02 09:42:41", 8),
+	(2,  "2020-10-03 11:10:11", 5),
+	(3,  "2020-10-04 11:45:52", 1),
+	(4,  "2020-10-05 10:01:13", 6),
+	(5,  "2020-09-06 10:14:34", 10),
+	(6,  "2020-09-07 09:52:56", 7),
+	(7,  "2020-10-08 10:55:13", 7),
+	(8,  "2020-10-09 08:54:52", 9),
+	(9,  "2020-10-02 09:53:52", 8),
+	(10,  "2020-09-01 10:09:20", 8),
+	(11,  "2020-09-01 09:10:10", 4),
+	(12,  "2020-10-01 11:14:09", 1),
+	(13,  "2020-09-01 11:44:54", 4),
+	(14,  "2020-09-01 11:24:05", 2),
+	(15,  "2020-09-02 10:42:01", 10),
+	(16,  "2020-09-03 11:01:42", 9),
+	(17,  "2020-09-04 09:42:53", 3),
+	(18,  "2020-10-07 10:10:31", 6),
+	(19,  "2020-10-08 08:53:41", 7),
+	(20,  "2020-10-02 10:10:05", 7),
+	(21,  "2020-09-03 08:41:14", 8),
+	(22,  "2020-09-01 10:09:03", 7),
+	(23,  "2020-10-06 10:01:43", 2),
+	(24,  "2020-10-07 10:46:22", 10),
+	(25,  "2020-10-02 09:34:21", 5),
+	(26,  "2020-10-03 11:20:32", 9),
+	(27,  "2020-09-04 08:13:14", 10),
+	(28,  "2020-09-04 10:15:40", 5),
+	(29,  "2020-10-05 10:52:10", 4),
+	(30,  "2020-09-06 09:31:43", 5),
+	(1,  "2020-06-02 13:25:35", 7),
+	(2,  "2020-06-04 11:40:27", 9),
+	(3,  "2020-06-06 11:15:22", 8),
+	(4,  "2020-06-08 10:19:59", 7),
+	(5,  "2020-06-10 10:35:26", 6),
+	(6,  "2020-06-12 10:43:53", 7),
+	(7,  "2020-06-14 11:21:29", 8),
+	(8,  "2020-06-16 12:10:30", 9),
+	(9,  "2020-06-18 10:39:31", 9),
+	(10,  "2020-06-20 13:12:13", 6),
+	(11,  "2020-06-22 10:19:05", 7),
+	(12,  "2020-06-24 10:15:20", 8),
+	(13,  "2020-06-26 10:32:22", 9),
+	(14,  "2020-06-28 10:43:23", 6),
+	(15,  "2020-06-30 10:50:16", 9),
+	(16,  "2020-07-01 10:30:20", 8),
+	(17,  "2020-07-03 10:48:26", 8),
+	(18,  "2020-07-05 09:50:29", 7),
+	(19,  "2020-07-07 10:30:28", 10),
+	(20,  "2020-07-09 10:20:25", 9),
+	(21,  "2020-07-11 11:10:24", 7),
+	(22,  "2020-07-13 10:53:23", 8),
+	(23,  "2020-07-15 10:36:22", 10),
+	(24,  "2020-07-17 08:20:22", 8),
+	(25,  "2020-07-19 10:29:57", 7),
+	(26,  "2020-07-21 10:43:22", 6),
+	(27,  "2020-07-23 12:24:20", 8),
+	(28,  "2020-07-25 10:10:20", 9),
+	(29,  "2020-07-27 10:13:20", 7),
+	(30,  "2020-07-29 11:05:20", 9),
+	(1,  "2019-08-15 12:21:31", 6),
+	(2,  "2020-08-17 10:35:21", 8),
+	(3,  "2020-08-23 06:24:22", 10),
+	(4,  "2020-08-07 06:12:23", 9),
+	(5,  "2020-08-26 06:03:26", 5),
+	(6,  "2020-08-27 08:53:28", 6),
+	(7,  "2020-08-21 07:59:29", 7),
+	(8,  "2020-08-11 08:41:21", 8),
+	(9,  "2020-08-12 08:31:21", 10),
+	(10,  "2020-08-13 10:12:20", 7),
+	(11,  "2020-08-14 13:26:20", 5),
+	(12,  "2020-08-10 13:07:20", 4),
+	(13,  "2020-08-16 14:04:22", 6),
+	(14,  "2020-08-17 14:16:23", 7),
+	(15,  "2020-08-18 10:48:24", 8),
+	(16,  "2020-08-01 12:31:20", 8),
+	(17,  "2020-08-02 12:55:26", 8),
+	(18,  "2020-08-03 10:52:29", 8),
+	(19,  "2020-08-10 11:45:28", 8),
+	(20,  "2020-08-11 11:34:25", 8),
+	(21,  "2020-08-13 10:24:24", 8),
+	(22,  "2020-08-15 10:14:23", 8),
+	(23,  "2020-08-16 10:15:22", 10),
+	(24,  "2020-08-17 10:22:22", 9),
+	(25,  "2020-08-19 10:21:21", 9),
+	(26,  "2020-08-21 09:32:22", 9),
+	(27,  "2020-08-22 09:42:20", 8),
+	(28,  "2020-08-24 09:15:20", 8),
+	(29,  "2020-09-25 08:08:20", 8),
+	(30,  "2020-09-27 08:08:20", 7);
 
+# 2. Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. -- Luka
 
-   # Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. --LUKA
 DROP FUNCTION IF EXISTS satnica_zaposlenika;
 DELIMITER //
 CREATE FUNCTION satnica_zaposlenika(p_id_zaposlenik INTEGER) RETURNS INTEGER
@@ -501,15 +508,15 @@ BEGIN
     RETURN (SELECT novac_po_satu
         FROM zaposlenik
             INNER JOIN pozicija
-            ON id_pozicija = pozicija.id AND zaposlenik.id = p_id_zaposlenik);
+            ON id_pozicija = pozicija.id AND
+				zaposlenik.id = p_id_zaposlenik);
 END//
 DELIMITER ;
 
 # Primjer:
 SELECT satnica_zaposlenika(5) FROM DUAL;
 
-
-#2 Zadatak: Funkcija koja vrača broj računa koji je zaposlenik izdao, treba izbaciti -1 ako zaposlenik nije niti jedan račun izdao. -- Mihael
+# 3. Zadatak: Funkcija koja vrača broj računa koji je zaposlenik izdao, treba izbaciti -1 ako zaposlenik nije niti jedan račun izdao. -- Mihael
 DROP FUNCTION IF EXISTS broj_racuna;
 DELIMITER //
 CREATE FUNCTION broj_racuna(p_id_zaposlenik INTEGER) RETURNS INTEGER
@@ -517,10 +524,11 @@ DETERMINISTIC
 BEGIN
     DECLARE result INTEGER DEFAULT 0;
     SELECT COUNT(*) INTO result
-    FROM racun
-        INNER JOIN zaposlenik
-        ON id_zaposlenik = zaposlenik.id AND id_zaposlenik = p_id_zaposlenik
-    GROUP BY id_zaposlenik;
+		FROM racun
+			INNER JOIN zaposlenik
+			ON id_zaposlenik = zaposlenik.id AND
+				id_zaposlenik = p_id_zaposlenik
+		GROUP BY id_zaposlenik;
     IF result = 0 THEN
         SET result = -1;
     END IF;
@@ -528,116 +536,160 @@ BEGIN
 END//
 DELIMITER ;
 
-#3 Zadatak: Zbroj sati rada od određenog zaposlenika u određenom mjesecu
+# Primjer:
+SELECT broj_racuna(10) FROM DUAL;
+
+# 4. Zadatak: Zbroj sati rada od određenog zaposlenika u određenom mjesecu -- Mihael
 
 DROP FUNCTION IF EXISTS sati_mjesec;
 DELIMITER //
 CREATE FUNCTION sati_mjesec (p_id_zaposlenik INTEGER, p_mjesec INTEGER, p_godina INTEGER) RETURNS FLOAT
 DETERMINISTIC
 BEGIN
-DECLARE REZ FLOAT;
-SELECT SUM(broj_sati) INTO REZ
-FROM prisutnost  
-WHERE YEAR(datum)=p_godina AND MONTH(datum)=p_mjesec AND id_zaposlenik = p_id_zaposlenik
-GROUP BY id_zaposlenik;
-IF (REZ) THEN RETURN REZ;
-ELSE RETURN 0;
+	DECLARE REZ FLOAT;
+	SELECT SUM(broj_sati) INTO REZ
+		FROM prisutnost  
+		WHERE YEAR(datum) = p_godina AND
+			MONTH(datum) = p_mjesec AND
+			id_zaposlenik = p_id_zaposlenik
+		GROUP BY id_zaposlenik;
+	IF (REZ) THEN
+		RETURN REZ;
+	ELSE RETURN 0;
 END IF;
    
 END//
 DELIMITER ;
 
+SELECT sati_mjesec(10, 1, 2020);
 
-
-SELECT sati_mjesec (10, 1, 2020);
-
-#4 ZADATAK: Izračun plaće ordeđenog zaposlenika u oređenom mjesecu
+# 5. Zadatak: Izračun plaće ordeđenog zaposlenika u oređenom mjesecu -- Mihael
 
 DROP FUNCTION IF EXISTS placa_mjesec;
 DELIMITER //
 CREATE FUNCTION placa_mjesec (p_id_zaposlenik INTEGER, p_mjesec INTEGER, p_godina INTEGER) RETURNS FLOAT
 DETERMINISTIC
 BEGIN
-DECLARE REZ FLOAT;
-SELECT SUM(broj_sati_sa_bonusima) INTO REZ
-FROM prisutnost  
-WHERE YEAR(datum)=p_godina AND MONTH(datum)=p_mjesec AND id_zaposlenik = p_id_zaposlenik
-GROUP BY id_zaposlenik;
-IF (NOT REZ) THEN RETURN 0;
-END IF;   
-RETURN REZ * satnica_zaposlenika(p_id_zaposlenik);
+	DECLARE REZ FLOAT;
+	SELECT SUM(broj_sati_sa_bonusima) INTO REZ
+		FROM prisutnost  
+		WHERE YEAR(datum)=p_godina
+			AND MONTH(datum)=p_mjesec
+			AND id_zaposlenik = p_id_zaposlenik
+		GROUP BY id_zaposlenik;
+	IF (NOT REZ) THEN
+		RETURN 0;
+	END IF;   
+	RETURN REZ * satnica_zaposlenika(p_id_zaposlenik);
 END//
 DELIMITER ;
 
+SELECT placa_mjesec(17, 1, 2020);
 
-SELECT placa_mjesec (17,1,2020);
+# 6. Zadatak: Procedura sprema auto u različite group ovisno o cijeni (grupe bitno_prodati i manje_bitno) -- Mihael
 
-#5 ZADATAK: Procedura sprema auto u različite group ovisno o cijeni (grupe bitno_prodati i manje_bitno)
 DROP PROCEDURE IF EXISTS sortiranje_auta;
 DELIMITER //
 CREATE PROCEDURE sortiranje_auta(IN limit_cij INTEGER, OUT bitno_prodati VARCHAR(4000), OUT manje_bitno VARCHAR(4000))
 BEGIN
-DECLARE auto VARCHAR(50) DEFAULT "";
-DECLARE dod_cijena INTEGER DEFAULT 0;
- DECLARE finished INTEGER DEFAULT 0;
-
- DECLARE cur CURSOR FOR
- SELECT naziv, cijena FROM automobil;
-
- DECLARE CONTINUE HANDLER FOR SQLSTATE '02000'
- BEGIN
- SET finished = 1;
- SET bitno_prodati = CONCAT("UNUTAR BLOKA",";",bitno_prodati);
-  SET manje_bitno = CONCAT("UNUTAR BLOKA",";",manje_bitno);
- END;
- 
- SET bitno_prodati = "";
- SET manje_bitno = "";
-
- OPEN CUR;
-
- iteriraj_automobile: LOOP
-
- FETCH cur INTO auto, dod_cijena;
- 
-
- IF finished = 1 THEN
- LEAVE iteriraj_automobile;
- END IF;
- IF (dod_cijena<limit_cij) THEN  SET manje_bitno= CONCAT(auto,"/",manje_bitno);
-ELSE SET bitno_prodati= CONCAT(auto,"/",bitno_prodati);
-END IF;
- END LOOP iteriraj_automobile;
-
- CLOSE cur;
-
+	DECLARE auto VARCHAR(50) DEFAULT "";
+	DECLARE dod_cijena INTEGER DEFAULT 0;
+	DECLARE finished INTEGER DEFAULT 0;
+	DECLARE cur CURSOR FOR
+		SELECT naziv, cijena
+			FROM automobil;
+	DECLARE CONTINUE HANDLER FOR SQLSTATE '02000'
+	BEGIN
+		SET finished = 1;
+		SET bitno_prodati = CONCAT("UNUTAR BLOKA:", bitno_prodati);
+		SET manje_bitno = CONCAT("UNUTAR BLOKA:", manje_bitno);
+	END;
+	SET bitno_prodati = "";
+	SET manje_bitno = "";
+	OPEN CUR;
+	iteriraj_automobile: LOOP
+		FETCH cur INTO auto, dod_cijena;
+		IF finished = 1 THEN
+			LEAVE iteriraj_automobile;
+		END IF;
+		IF (dod_cijena<limit_cij) THEN
+			SET manje_bitno = CONCAT(auto, "/", manje_bitno);
+		ELSE
+			SET bitno_prodati = CONCAT(auto, "/", bitno_prodati);
+		END IF;
+	END LOOP iteriraj_automobile;
+	CLOSE cur;
 END //
 DELIMITER ;
 
-CALL sortiranje_auta(150000,@bitno_prodati,@manje_bitno);
-SELECT @bitno_prodati,@manje_bitno;
+CALL sortiranje_auta(150000, @bitno_prodati, @manje_bitno);
+SELECT @bitno_prodati, @manje_bitno;
 
- 
+# 7. Zadatak: Okidač koji nam osigura da datum zaposlenja postane trenutni datum ako pokušamo zaposliti nekoga u budućem vremenu. -- Bubalo
 
-# Primjer:
-SELECT satnica_zaposlenika(5) FROM DUAL;
-
-# Primjer:
-SELECT broj_racuna(10) FROM DUAL;
-
-# Zadatak: Okidač koji nam osigura da datum zaposlenja postane trenutni datum ako pokušamo zaposliti nekoga u budućem vremenu.-- Bubalo
 DROP TRIGGER IF EXISTS bi_zaposlenik;
 DELIMITER //
 CREATE TRIGGER bi_zaposlenik
 	BEFORE INSERT ON zaposlenik
 	FOR EACH ROW
 BEGIN
-DECLARE datum VARCHAR(500);
-IF new.datum_zaposlenja > NOW() THEN SET new.datum_zaposlenja = NOW();
-END IF;
+	DECLARE datum VARCHAR(500);
+	IF new.datum_zaposlenja > NOW() THEN
+		SET new.datum_zaposlenja = NOW();
+	END IF;
 END//
 DELIMITER ;
 
-SELECT * FROM prisutnost
+# 8. Zadatak: Procedura koja sprema brojeve koliko je sveukupno novaca potrošio kupac na zasebno aute i servis. -- Bubalo
 
+DROP PROCEDURE IF EXISTS kupac_potrosio;
+DELIMITER //
+CREATE PROCEDURE kupac_potrosio(IN p_id_kupac INTEGER, OUT suma_auto INTEGER, OUT suma_servis INTEGER)
+DETERMINISTIC
+BEGIN
+	SELECT SUM(automobil.cijena) INTO suma_auto
+		FROM racun
+			INNER JOIN automobil
+			ON automobil.id = id_automobil
+		WHERE id_kupac = p_id_kupac
+		GROUP BY id_kupac;
+	SELECT SUM(servis.cijena) INTO suma_servis
+		FROM racun
+			INNER JOIN servis
+			ON servis.id = id_servis
+		WHERE id_kupac = p_id_kupac
+		GROUP BY id_kupac;
+END//
+DELIMITER ;
 
+# Primjer
+
+CALL kupac_potrosio(15, @suma_auto, @suma_servis);
+SELECT @suma_auto, @suma_servis;
+
+# 9. Zadatak: Napraviti novog korisnika koji ima sva prava na tablici racun, dok na tablicama zaposlenik, automobil, servis, korisnik i placanje može samo čitati
+
+DROP USER IF EXISTS novi_korisnik;
+CREATE USER novi_korisnik IDENTIFIED BY "novi_korisnik";
+GRANT ALL PRIVILEGES ON isplata_placa.racun TO novi_korisnik;
+GRANT SELECT ON isplata_placa.zaposlenik TO novi_korisnik;
+GRANT SELECT ON isplata_placa.kupac TO novi_korisnik;
+GRANT SELECT ON isplata_placa.placanje TO novi_korisnik;
+GRANT SELECT ON isplata_placa.automobil TO novi_korisnik;
+GRANT SELECT ON isplata_placa.servis TO novi_korisnik;
+SHOW GRANTS FOR novi_korisnik;
+
+# 10. Zadatak: Napraviti SQL upit i optimizirani plan izvođenja upita koji će prikazati popis imena i prezimena kupaca i zaposlenika čije je ime "Tomislav" i dodati novi
+#	atribut "uloga" u koji sprema riječ kupac ili zaposlenik ovisno koju ulogu ima ta osoba.
+
+SELECT ime, prezime, "kupac" AS uloga
+	FROM kupac
+	WHERE ime = "Tomislav"
+UNION ALL
+SELECT ime, prezime, "zaposlenik" AS uloga
+	FROM zaposlenik
+	WHERE ime = "Tomislav";
+
+# Optimizirani plan izvođenja upita
+
+# π ime, prezime, 'kupac' → uloga (σ ime = 'Tomislav' (kupac))) ∪ ( π ime, prezime, 'zaposlenik' → uloga (σ ime = 'Tomislav' (zaposlenik)))
