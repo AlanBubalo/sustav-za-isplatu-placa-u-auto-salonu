@@ -4,26 +4,19 @@ USE isplata_placa;
 
 /* 
 	 **Pozicije u firmi**
-	 - Izvršni Direkton
-     - Prodavač (auta)
+     - Voditelj prodaje
+     - Prodavač automobila
      - Direktor
      - Čistačica 
+     - Čistač automobila
      - Automehaničar
      - Zaštitar
-     - Prodavač (za djelove)
+     - Prodavač auto dijelova
      - Informatičar
-     - Elektroničar
+     - Autoelektričar
      - Tajnica
      - Knjigovođa
      - Dostavljač
-
-    moguće je plaćat na rate 
-    do 60 rata = 5 godina
-*/
-
-/*
-Sta trebamo napraviti:
-	- cijene zaokruziti da budu reasonable
 */
 
 CREATE TABLE pozicija (
@@ -45,8 +38,6 @@ CREATE TABLE zaposlenik(
     CONSTRAINT zaposlenik_pozicija_fk FOREIGN KEY (id_pozicija) REFERENCES pozicija(id)
 );
 
-
-
 CREATE TABLE klasa (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	naziv VARCHAR(30) NOT NULL UNIQUE,
@@ -61,8 +52,6 @@ CREATE TABLE automobil (
     CONSTRAINT automobil_cijena_ck CHECK (cijena > 0),
     CONSTRAINT automobil_klasa_fk FOREIGN KEY (id_klasa) REFERENCES klasa(id)
 );
-
-
 
 CREATE TABLE kupac (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
@@ -96,12 +85,14 @@ CREATE TABLE racun (
     id_placanje INTEGER NOT NULL,
     id_automobil INTEGER,
     id_servis INTEGER,
+    broj_rata INTEGER DEFAULT 1,	 # Dozvoljeno plaćanje je do 60 rata, moguće je isključivo karticom na rate.
     CONSTRAINT racun_auto_or_servis_ck CHECK ((id_servis != NULL AND id_automobil = NULL) OR (id_servis = NULL AND id_automobil != NULL)),
 	CONSTRAINT racun_zaposlenik_fk FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id),
     CONSTRAINT racun_kupac_fk FOREIGN KEY (id_kupac) REFERENCES kupac(id),
     CONSTRAINT racun_placanje_fk FOREIGN KEY (id_placanje) REFERENCES placanje(id),
     CONSTRAINT racun_automobil_fk FOREIGN KEY (id_automobil) REFERENCES automobil(id),
-    CONSTRAINT racun_servis_fk FOREIGN KEY (id_servis) REFERENCES servis(id)
+    CONSTRAINT racun_servis_fk FOREIGN KEY (id_servis) REFERENCES servis(id),
+    CONSTRAINT racun_broj_rata_ck CHECK (broj_rata > 0 AND broj_rata<=60)
 );
 
 CREATE TABLE praznici (
@@ -120,6 +111,70 @@ CREATE TABLE prisutnost (
 	CONSTRAINT prisutnost_zaposlenik_fk FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id),
     CONSTRAINT prisutnost_broj_sati_ck CHECK (broj_sati > 0)
 );
+
+# 1. Zadatak: Trigger se koristi u slučaju ako kupac želi platiti na rate, a nije odabrao karticu na rate kao način plaćanja, broj rata mu se postavlja na jednu (mora platiti odjedanput). - Mihael 
+
+DROP TRIGGER IF EXISTS bi_racun;
+DELIMITER //
+CREATE TRIGGER bi_racun
+	BEFORE INSERT ON racun
+	FOR EACH ROW
+BEGIN
+	IF new.id_placanje != 4 THEN
+		SET new.broj_rata = 1;
+END IF;
+END //
+DELIMITER ;
+
+# 1. Zadatak: Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) -- Mihael
+
+DROP TRIGGER IF EXISTS bi_prisutnost;
+DELIMITER //
+CREATE TRIGGER bi_prisutnost
+	BEFORE INSERT ON prisutnost
+	FOR EACH ROW
+BEGIN
+	DECLARE bonus FLOAT;
+	DECLARE mjesecdan VARCHAR(6);
+	SET new.broj_sati_sa_bonusima = new.broj_sati;
+	SET bonus = new.broj_sati - 8;
+	SELECT CONCAT("-",DATE_FORMAT(new.datum,"%m"),"-", DATE_FORMAT(new.datum,"%d")) INTO mjesecdan;
+    
+    # Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%)
+	IF new.broj_sati > 8 THEN
+		SET new.broj_sati_sa_bonusima = 8 + (bonus * 1.5);
+	END IF;
+    
+    # Okidač također osigurava ako je zaposlenik radio na nedjelju ili jedan od praznika da mu se dodaje bonus od 50% na satnicu
+	IF mjesecdan IN (SELECT datum FROM praznici) THEN
+		SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
+	END IF;
+	IF DAYNAME(new.datum) = "Sunday" THEN
+		SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
+	END IF;
+    
+    # Okidač će izbaciti grešku ako je zaposlenik upisan prisutan na poslu prije datuma svog zaposlenja
+    IF new.datum < (SELECT datum_zaposlenja FROM zaposlenik WHERE id = new.id_zaposlenik) THEN
+		SIGNAL SQLSTATE '40000'
+		SET MESSAGE_TEXT = 'Zaposlenik nije mogao otići na posao prije nego li se zaposlio (provjerite datum)';
+	END IF;
+END//
+DELIMITER ;
+
+# 7. Zadatak: Okidač koji nam osigura da datum zaposlenja postane trenutni datum ako pokušamo zaposliti nekoga u budućem vremenu. -- Bubalo
+
+DROP TRIGGER IF EXISTS bi_zaposlenik;
+DELIMITER //
+CREATE TRIGGER bi_zaposlenik
+	BEFORE INSERT ON zaposlenik
+	FOR EACH ROW
+BEGIN
+	DECLARE datum VARCHAR(500);
+	IF new.datum_zaposlenja > NOW() THEN
+		SET new.datum_zaposlenja = NOW();
+	END IF;
+END//
+DELIMITER ;
 
 INSERT INTO pozicija (ime, opis, novac_po_satu) VALUES
 	("Direktor", "Voditelj firme", 120),
@@ -186,69 +241,61 @@ INSERT INTO klasa (naziv, stopa_bonusa) VALUES
 	("Električni automobili", 13),
 	("Pick-up", 5);
 
-/*
-INSERT INTO bonus_sati (tip_bonusa, postotak) VALUES
-	("Rad vikendom", 50),
-	("Rad blagdanom", 100),
-	("Noćni rad", 50),
-	("Rad prekovremeno", 25);
-*/
-
 INSERT INTO automobil (naziv, id_klasa, cijena) VALUES
-	("Volkswagen UP", 1, 94953),
-	("Škoda CitigoE IV", 1, 52300),
-	("Hyundai I10", 1, 78980),
-	("Opel Corsa", 2, 98032),
-	("Citroen C3 Feel", 2, 109420),
-	("Seat Ibiza", 2, 113267),
-	("Volkswagen Golf 8", 3, 145890),
-	("Opel Astra", 3, 139767),
-	("Kia Ceed", 3, 140094),
-	("Hyundai I30", 3, 128760),
-	("Seat Leon", 3, 142865),
+	("Volkswagen UP", 1, 94000),
+	("Škoda CitigoE IV", 1, 52000),
+	("Hyundai I10", 1, 78000),
+	("Opel Corsa", 2, 98000),
+	("Citroen C3 Feel", 2, 109000),
+	("Seat Ibiza", 2, 113000),
+	("Volkswagen Golf 8", 3, 145000),
+	("Opel Astra", 3, 139000),
+	("Kia Ceed", 3, 140000),
+	("Hyundai I30", 3, 128000),
+	("Seat Leon", 3, 142000),
 	("Mini Cooper Clubman", 3, 150000),
-	("BMW Serija 1 F21", 3, 189321),
-	("Mercedes A Klasa", 3, 196541),
-	("Škoda Octavia", 4, 157868),
-	("Volkswagen Passat", 4, 177409),
-	("Ford Mondeo", 4, 160412),
-	("Peugeot 508", 4, 176960),
-	("Mazda 6", 4, 185435),
-	("BMW Serija 5", 5, 230193),
-	("Mercedes E klasa", 5, 240534),
-	("Jaguar F Type", 10, 329432),
-	("Rolls Royce Phantom", 5, 890123),
-	("Jaguar XF", 5, 320412),
-	("Peugeot 3008", 6, 276095),
-	("Škoda Kodiaq", 6, 280912),
-	("Audi Q3", 6, 264509),
+	("BMW Serija 1 F21", 3, 189000),
+	("Mercedes A Klasa", 3, 196000),
+	("Škoda Octavia", 4, 157000),
+	("Volkswagen Passat", 4, 177000),
+	("Ford Mondeo", 4, 160000),
+	("Peugeot 508", 4, 176000),
+	("Mazda 6", 4, 185000),
+	("BMW Serija 5", 5, 230000),
+	("Mercedes E klasa", 5, 240000),
+	("Jaguar F Type", 10, 329000),
+	("Rolls Royce Phantom", 5, 890000),
+	("Jaguar XF", 5, 320000),
+	("Peugeot 3008", 6, 276000),
+	("Škoda Kodiaq", 6, 280000),
+	("Audi Q3", 6, 264000),
 	("BMW X5", 7, 503000),
 	("Lamborghini Urus", 7, 2000000),
 	("Range Rover Evoque", 7, 410000),
 	("Mercedes GLA", 7, 560932),
-	("Range Rover Velar", 9, 532039),
+	("Range Rover Velar", 9, 532000),
 	("Volvo XC60", 8, 430210),
-	("Toyota Land Cruiser", 8, 510321),
-	("Mercedes G klasa", 9, 753214),
+	("Toyota Land Cruiser", 8, 510000),
+	("Mercedes G klasa", 9, 753000),
 	("BMW X7", 9, 680318),
-	("Rolls Royce Cullinan", 9, 932310),
+	("Rolls Royce Cullinan", 9, 932000),
 	("Aston Martin DBS", 10, 912000),
 	("Porsche 911 Spyder", 10, 8700000),
-	("BMW Serije 8 coupe", 10, 910003),
-	("Lamborghini Huracan", 10, 1948929),
-	("Ferrari 812", 10, 1495249),
-	("Nissan GT-R", 10, 901239),
-	("Bentley Continental GT", 10, 2343776),
-	("Mercedes E klasa coupe", 10, 842199),
-	("Opel Vivaro", 11, 210434),
-	("Mercedes V klasa", 11, 431003),
-	("Peugeot Partner", 11, 190320),
+	("BMW Serije 8 coupe", 10, 910000),
+	("Lamborghini Huracan", 10, 1948000),
+	("Ferrari 812", 10, 1495000),
+	("Nissan GT-R", 10, 901000),
+	("Bentley Continental GT", 10, 2343000),
+	("Mercedes E klasa coupe", 10, 842000),
+	("Opel Vivaro", 11, 210000),
+	("Mercedes V klasa", 11, 431000),
+	("Peugeot Partner", 11, 190000),
 	("Tesla Model S", 12, 540000),
-	("Tesla Model 3", 12, 451999),
-	("Tesla Model X", 12, 490300),
-	("Tesla Model Y", 12, 453951),
+	("Tesla Model 3", 12, 451000),
+	("Tesla Model X", 12, 490000),
+	("Tesla Model Y", 12, 453000),
 	("Opel Corsa Electric", 12, 230000),
-	("Mercedes X klasa", 13, 640210),
+	("Mercedes X klasa", 13, 640000),
 	("Ford Raptor", 13, 511000);
 
 INSERT INTO kupac (ime, prezime, email, broj_mobitela, iban) VALUES
@@ -280,23 +327,23 @@ INSERT INTO placanje (naziv) VALUES
     ("Pouzece"),
     ("Kartica na rate");
 
-INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_kupac, id_placanje, id_automobil, id_servis) VALUES
-	("2020-04-30 19:21:31", 7, 15, 2, 1, NULL),
-	("2019-11-09 17:52:45", 8, 14, 1, 4, NULL),
-	("2021-01-04 15:47:59", 9, 13, 3, 8, NULL),
-	("2020-03-21 17:25:00", 11, 12, 4, 17, NULL),
-	("2019-04-17 18:00:45", 10, 11, 2, NULL, 1),
-	("2020-05-10 10:52:50", 8, 10, 4, 28, NULL),
-	("2020-08-27 11:41:41", 12, 9, 1, NULL, 2),
-	("2021-03-07 12:52:12", 11, 8, 2, 33, NULL),
-	("2021-02-28 15:56:14", 7, 7, 1, 37, NULL),
-	("2019-12-10 20:11:59", 7, 6, 3, 41, NULL),
-	("2019-11-15 10:15:22", 11, 5, 1, 48, NULL),
-	("2019-12-02 09:02:24", 11, 4, 3, 49, NULL),
-	("2019-12-22 20:21:32", 12, 3, 2, NULL, 4),
-	("2020-03-07 19:41:16", 9, 2, 3, 44, NULL),
-	("2020-08-11 17:35:42", 8, 1, 1, 51, NULL),
-    ("2020-09-11 17:40:4", 8, 15, 1, NULL, 3);
+INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_kupac, id_placanje, id_automobil, id_servis, broj_rata) VALUES
+	("2020-04-30 19:21:31", 7, 15, 2, 1, NULL, NULL),
+	("2019-11-09 17:52:45", 8, 14, 1, 4, NULL, NULL),
+	("2021-01-04 15:47:59", 9, 13, 3, 8, NULL, NULL),
+	("2020-03-21 17:25:00", 11, 12, 4, 17, NULL, 20),
+	("2019-04-17 18:00:45", 10, 11, 2, NULL, 1, NULL),
+	("2020-05-10 10:52:50", 8, 10, 4, 28, NULL, 15),
+	("2020-08-27 11:41:41", 12, 9, 1, NULL, 2, NULL),
+	("2021-03-07 12:52:12", 11, 8, 2, 33, NULL, NULL),
+	("2021-02-28 15:56:14", 7, 7, 1, 37, NULL, NULL),
+	("2019-12-10 20:11:59", 7, 6, 3, 41, NULL, NULL),
+	("2019-11-15 10:15:22", 11, 5, 1, 48, NULL, NULL),
+	("2019-12-02 09:02:24", 11, 4, 3, 49, NULL, NULL),
+	("2019-12-22 20:21:32", 12, 3, 2, NULL, 4, NULL),
+	("2020-03-07 19:41:16", 9, 2, 3, 44, NULL, NULL),
+	("2020-08-11 17:35:42", 8, 1, 1, 51, NULL, NULL),
+    ("2020-09-11 17:40:4", 8, 15, 1, NULL, 3, NULL);
     
 INSERT INTO praznici (naziv, datum) VALUES 
 	("Bozic", "-12-25"),
@@ -304,41 +351,6 @@ INSERT INTO praznici (naziv, datum) VALUES
 	("Praznik rada", "-05-01"),
 	("Tijelovo","-06-16"),
 	("Dan svih svetih", "-01-11");
-
-# 1. Zadatak: Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) -- Mihael
-
-DROP TRIGGER IF EXISTS bi_prisutnost;
-DELIMITER //
-CREATE TRIGGER bi_prisutnost
-	BEFORE INSERT ON prisutnost
-	FOR EACH ROW
-BEGIN
-	DECLARE bonus FLOAT;
-	DECLARE mjesecdan VARCHAR(6);
-	SET new.broj_sati_sa_bonusima = new.broj_sati;
-	SET bonus = new.broj_sati - 8;
-	SELECT CONCAT("-",DATE_FORMAT(new.datum,"%m"),"-", DATE_FORMAT(new.datum,"%d")) INTO mjesecdan;
-    
-    # Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%)
-	IF new.broj_sati > 8 THEN
-		SET new.broj_sati_sa_bonusima = 8 + (bonus * 1.5);
-	END IF;
-    
-    # Okidač također osigurava ako je zaposlenik radio na nedjelju ili jedan od praznika da mu se dodaje bonus od 50% na satnicu
-	IF mjesecdan IN (SELECT datum FROM praznici) THEN
-		SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
-	END IF;
-	IF DAYNAME(new.datum) = "Sunday" THEN
-		SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
-	END IF;
-    
-    # Okidač će izbaciti grešku ako je zaposlenik upisan prisutan na poslu prije datuma svog zaposlenja
-    IF new.datum < (SELECT datum_zaposlenja FROM zaposlenik WHERE id = new.id_zaposlenik) THEN
-		SIGNAL SQLSTATE '40000'
-		SET MESSAGE_TEXT = 'Zaposlenik nije mogao otići na posao prije nego li se zaposlio (provjerite datum)';
-	END IF;
-END//
-DELIMITER ;
 
 INSERT INTO prisutnost (id_zaposlenik, datum, broj_sati) VALUES 
 	(1,  "2019-06-02 12:21:31", 6),
@@ -618,21 +630,6 @@ DELIMITER ;
 
 CALL sortiranje_auta(150000, @bitno_prodati, @manje_bitno);
 SELECT @bitno_prodati, @manje_bitno;
-
-# 7. Zadatak: Okidač koji nam osigura da datum zaposlenja postane trenutni datum ako pokušamo zaposliti nekoga u budućem vremenu. -- Bubalo
-
-DROP TRIGGER IF EXISTS bi_zaposlenik;
-DELIMITER //
-CREATE TRIGGER bi_zaposlenik
-	BEFORE INSERT ON zaposlenik
-	FOR EACH ROW
-BEGIN
-	DECLARE datum VARCHAR(500);
-	IF new.datum_zaposlenja > NOW() THEN
-		SET new.datum_zaposlenja = NOW();
-	END IF;
-END//
-DELIMITER ;
 
 # 8. Zadatak: Procedura koja sprema brojeve koliko je sveukupno novaca potrošio kupac na zasebno aute i servis. -- Bubalo
 
