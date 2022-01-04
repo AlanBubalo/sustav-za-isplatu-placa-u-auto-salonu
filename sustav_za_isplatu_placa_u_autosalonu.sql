@@ -107,7 +107,7 @@ CREATE TABLE racun (
 CREATE TABLE praznici (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	naziv VARCHAR(50) NOT NULL UNIQUE,
-	datum VARCHAR(6) NOT NULL
+	datum VARCHAR(6) NOT NULL,
     CONSTRAINT praznici_datum_ck CHECK (datum LIKE "-%-%")
 );
 
