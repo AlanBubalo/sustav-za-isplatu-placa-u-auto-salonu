@@ -45,13 +45,7 @@ CREATE TABLE zaposlenik(
     CONSTRAINT zaposlenik_pozicija_fk FOREIGN KEY (id_pozicija) REFERENCES pozicija(id)
 );
 
-CREATE TABLE isplata (
-	id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    id_zaposlenik INTEGER NOT NULL,
-	broj_sati INTEGER DEFAULT 0,
-	bonus FLOAT DEFAULT 0,
-    FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id)
-);
+
 
 CREATE TABLE klasa (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -68,24 +62,7 @@ CREATE TABLE automobil (
     CONSTRAINT automobil_klasa_fk FOREIGN KEY (id_klasa) REFERENCES klasa(id)
 );
 
-/*
-CREATE TABLE bonus_sati (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    tip_bonusa VARCHAR(20) NOT NULL UNIQUE,
-    postotak FLOAT
-);
-*/
 
-/*
-CREATE TABLE dostava (
-	broj_dostave INTEGER NOT NULL PRIMARY KEY,
-	vrijeme_dostave TIME NOT NULL,
-	id_zaposlenik INTEGER NOT NULL,
-	id_automobil INTEGER NOT NULL,
-	FOREIGN KEY (id_zaposlenik) REFERENCES zaposlenik(id),
-	FOREIGN KEY (id_automobil) REFERENCES automobil(id)
-);
-*/
 
 CREATE TABLE kupac (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
@@ -192,20 +169,7 @@ INSERT INTO zaposlenik (ime, prezime, id_pozicija, oib, email, datum_zaposlenja)
 	("Orianna", "Ombretta", 13, "07151025941", "oombretta@luxecars.com", "2020-04-16 13:21:31"),
 	("Danko", "Bananković", 13, "01405821019", "dbanankovic@luxecars.com", "2020-04-30 11:21:31");
 
-INSERT INTO isplata (id_zaposlenik, broj_sati, bonus) VALUES
-	(1, NULL, NULL),
-	(2, NULL, NULL),
-	(3, NULL, NULL),
-	(4, NULL, NULL),
-	(5, NULL, NULL),
-	(6, NULL, NULL),
-	(7, NULL, NULL),
-	(8, NULL, NULL),
-	(9, NULL, NULL),
-	(10, NULL, NULL),
-	(11, NULL, NULL),
-	(12, NULL, NULL),
-	(13, NULL, NULL);
+
 
 INSERT INTO klasa (naziv, stopa_bonusa) VALUES
 	("Mali gradski auto", 1.5),
@@ -496,7 +460,37 @@ INSERT INTO prisutnost (id_zaposlenik, datum, broj_sati) VALUES
 	(27,  "2020-08-22 09:42:20", 8),
 	(28,  "2020-08-24 09:15:20", 8),
 	(29,  "2020-09-25 08:08:20", 8),
-	(30,  "2020-09-27 08:08:20", 7);
+	(30,  "2020-09-27 08:08:20", 7),
+    (1,  "2020-08-12 08:33:23", 5),
+	(2,  "2020-08-19 10:35:21", 5),
+	(3,  "2020-08-28 06:24:22", 7),
+	(4,  "2020-08-19 06:00:23", 9),
+	(5,  "2020-10-26 09:03:26", 5),
+	(6,  "2020-12-27 08:53:28", 6),
+	(7,  "2020-12-21 07:59:29", 7),
+	(8,  "2020-11-11 08:41:21", 8),
+	(9,  "2020-10-12 08:31:21", 10),
+	(10,  "2020-10-13 12:12:20", 7),
+	(11,  "2020-11-14 13:26:20", 5),
+	(12,  "2020-11-10 10:07:20", 4),
+	(13,  "2020-08-24 16:04:22", 6),
+	(14,  "2020-04-17 14:56:23", 7),
+	(15,  "2020-06-18 11:48:24", 8),
+	(16,  "2020-08-21 08:31:20", 8),
+	(17,  "2020-07-02 16:55:26", 8),
+	(18,  "2020-05-03 10:52:29", 8),
+	(19,  "2020-09-10 11:45:28", 8),
+	(20,  "2020-06-11 11:04:25", 8),
+	(21,  "2020-08-10 10:24:1", 8),
+	(22,  "2020-10-15 09:14:23", 8),
+	(23,  "2020-08-09 10:15:22", 10),
+	(24,  "2020-08-11 10:22:24", 9),
+	(25,  "2020-08-10 10:23:21", 9),
+	(26,  "2020-08-20 09:32:22", 9),
+	(27,  "2020-08-29 09:40:20", 8),
+	(28,  "2020-08-01 19:15:20", 8),
+	(29,  "2020-12-25 08:12:20", 8),
+	(30,  "2020-12-27 08:08:20", 7);
 
 # 2. Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. -- Luka
 
