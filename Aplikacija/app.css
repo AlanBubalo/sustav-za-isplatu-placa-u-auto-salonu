@@ -1,28 +1,32 @@
+.oblik {
+  margin-top: 75px;
+}
+
 .subscribe-container {
-    max-width: 800px;
-    margin: 60px auto;
-    background-color: rgba(130, 184, 219, 0.5);
-    border: 5px solid rgb(98, 143, 228);
+  max-width: 800px;
+  margin: 60px auto;
+  background-color: rgba(130, 184, 219, 0.5);
+  border: 5px solid rgb(98, 143, 228);
 }
 .subscribe-container form {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 .subscribe-container form input {
-    margin: 15px;
-    border: 1px solid rgb(98, 143, 228);
-    padding: 0.4rem;
+  margin: 15px;
+  border: 1px solid rgb(98, 143, 228);
+  padding: 0.4rem;
 }
 .subscribe-container form input {
-    flex: 1 1 200px;
+  flex: 1 1 200px;
 }
 
 .subscribe-container form input[type="submit"] {
-    border-radius: 3px;
-    background-color: rgba(17, 228, 10, 0.5);
-color: rgb(98, 143, 228);
+  border-radius: 3px;
+  background-color: rgba(17, 228, 10, 0.5);
+  color: rgb(98, 143, 228);
 }
 
 .subscribe-container form input[type="email"] {
-    flex: 1 1 250px;
+  flex: 1 1 250px;
 }

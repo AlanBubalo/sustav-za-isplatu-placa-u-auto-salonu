@@ -35,3 +35,4 @@ app.post("/", (req, res) => {
   var subEmail = req.body.youremail;
  res.send("Hello " + subName + ", Thank you for subcribing. You email is " + subEmail);
   });
+  
