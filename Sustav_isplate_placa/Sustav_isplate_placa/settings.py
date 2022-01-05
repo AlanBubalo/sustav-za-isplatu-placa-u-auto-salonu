@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'polls.apps.PollsConfig',
 ]
 
 MIDDLEWARE = [
@@ -76,10 +77,11 @@ WSGI_APPLICATION = 'Sustav_isplate_placa.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': str(BASE_DIR / 'sustav_za_isplatu_placa_u_autosalonu.sql'),
+        'NAME': 'isplata_placa',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -126,3 +128,7 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+TEMPLATE_DIRS = (
+    'Sustav_isplate_placa' + '/templates/',
+)
