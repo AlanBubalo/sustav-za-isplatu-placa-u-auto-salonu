@@ -504,7 +504,7 @@ INSERT INTO prisutnost (id_zaposlenik, datum, broj_sati) VALUES
 	(29,  "2020-12-25 08:12:20", 8),
 	(30,  "2020-12-27 08:08:20", 7);
 
-# 2. Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. -- Luka
+# 2. Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. -- Bubalo
 
 DROP FUNCTION IF EXISTS satnica_zaposlenika;
 DELIMITER //
