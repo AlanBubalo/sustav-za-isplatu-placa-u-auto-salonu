@@ -44,7 +44,58 @@ app.post("/satnicazaposlenika.html", (req, res) => {
     "SELECT satnica_zaposlenika(" + idZaposlenik + ") FROM DUAL;";
   connection.query(sql_query, (error, result) => {
     if (error) throw error;
-    console.log({
+    res.json({
+      result,
+    });
+  });
+});
+
+app.post("/brojracuna.html", (req, res) => {
+  var idZaposlenik = req.body.idZaposlenik;
+  const sql_query = "SELECT broj_racuna(" + idZaposlenik + ") FROM DUAL;";
+  connection.query(sql_query, (error, result) => {
+    if (error) throw error;
+    res.json({
+      result,
+    });
+  });
+});
+
+app.post("/brojsatiumjesecu.html", (req, res) => {
+  var idZaposlenik = req.body.idZaposlenik;
+  var Mjesec = req.body.Mjesec;
+  var Godina = req.body.Godina;
+  const sql_query =
+    "SELECT sati_mjesec(" +
+    idZaposlenik +
+    ", " +
+    Mjesec +
+    ", " +
+    Godina +
+    ") FROM DUAL;";
+  connection.query(sql_query, (error, result) => {
+    if (error) throw error;
+    res.json({
+      result,
+    });
+  });
+});
+
+app.post("/izracunplace.html", (req, res) => {
+  var idZaposlenik = req.body.idZaposlenik;
+  var Mjesec = req.body.Mjesec;
+  var Godina = req.body.Godina;
+  const sql_query =
+    "SELECT placa_mjesec(" +
+    idZaposlenik +
+    ", " +
+    Mjesec +
+    ", " +
+    Godina +
+    ") FROM DUAL;";
+  connection.query(sql_query, (error, result) => {
+    if (error) throw error;
+    res.json({
       result,
     });
   });
