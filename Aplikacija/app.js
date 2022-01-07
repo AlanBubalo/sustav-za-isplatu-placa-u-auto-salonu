@@ -118,3 +118,14 @@ app.post("/troskovikupca.html", (req, res) => {
     res.json({ result });
   });
 });
+
+app.post("", (req, res) => {
+  var Tablica = req.body.Tablica;
+  const sql_query = "SELECT * FROM " + Tablica + ";";
+  connection.query(sql_query, (error, result) => {
+    if (error) throw error;
+    res.json({
+      result,
+    });
+  });
+});

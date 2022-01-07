@@ -60,3 +60,11 @@ td {
   bottom: 20px;
   right: 44%;
 }
+
+.footerhome {
+  text-align: center;
+  color: gray;
+  bottom: 20px;
+  right: 44%;
+  margin-top: 40px;
+}

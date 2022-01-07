@@ -15,19 +15,19 @@
   <body>
       <!-- Navigacija -->
 
-    <nav class="navbar navbar-light" style="background-color: #F5F7FA">
-      <a class="navbar-brand" href="http://localhost:5050">
-        &nbsp;&nbsp;&nbsp;
-        <img
-          src="https://png.monster/wp-content/uploads/2021/03/pngwing.com-4-208ee93f-370x370.png"
-          width="30"
-          height="30"
-          class="d-inline-block align-top"
-          alt=""
-        />
-        &nbsp;&nbsp;&nbsp;LUXE CARS 
-      </a>
-    </nav>
+      <nav class="navbar navbar-light" style="background-color: #F5F7FA">
+        <a class="navbar-brand" href="http://localhost:5050">
+          &nbsp;&nbsp;&nbsp;
+          <img
+            src="https://png.monster/wp-content/uploads/2021/03/pngwing.com-4-208ee93f-370x370.png"
+            width="30"
+            height="30"
+            class="d-inline-block align-top"
+            alt=""
+          />
+          &nbsp;&nbsp;&nbsp;LUXE CARS 
+        </a>
+      </nav>
 
 
         <!-- Funkcije -->
@@ -117,7 +117,47 @@
         </div>
       </div>
     </div>
-    <p class="footer">TIM 9 - BAZE PODATAKA 2</p>
+           <!-- Tablice -->
+    <div class="oblik">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+          </div>
+          <div class="col-4">
+            <h4 class="alert-heading">Tablica</h4>
+    <p>Odabirom tablice i pritiskom "Pokreni" prikažu se svi podaci u tablici.</p>
+    <hr>
+            <form method="POST">
+              <div class="row">
+                <div class="col-6">
+                  <select
+                  class="form-control"
+                  placeholder="Unesi ime tablice"
+                  name="Tablica"
+                >
+                  <option value="Pozicija">Pozicija</option>
+                  <option value="Zaposlenik">Zaposlenik</option>
+                  <option value="Klasa">Klasa</option>
+                  <option value="Automobil">Automobil</option>
+                  <option value="Kupac">Kupac</option>
+                  <option value="Servis">Servis</option>
+                  <option value="Placanje">Plaćanje</option>
+                  <option value="Racun">Račun</option>
+                  <option value="Praznici">Praznici</option>
+                  <option value="Prisutnost">Prisutnost</option>
+                </select>
+                </div> 
+                      <div class="col-6">
+                        <button type="submit" class="btn btn-primary">Pokreni</button>
+                      </div>           
+                 </div>  
+            </form>
+          </div>
+          <div class="col">
+          </div>
+        </div>
+      </div>
+    <p class="footerhome">TIM 9 - BAZE PODATAKA 2</p>
     <script src="index.js"></script>
   </body>
 </html>
