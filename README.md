@@ -6,15 +6,17 @@ Cilj ovog projekta bilo je izraditi baze podataka za isplatu plaća u autosalonu
 
 ### Autori i zaduženja
 
-- **Alan Bubalo** (abubalo@unipu.hr) – Voditelj, programer, izrada procedura i triggera
-- **Alen Orbanić** (aorbanic@unipu.hr) – Programer, izrada tablica, insertova
-- **Mihael Blažević** (mblazevic@unipu.hr) – Programer, izrada upita, QA
-- **Luka Brodarič** (lbrodaric@unipu.hr) - Programer, izrada aplikacije, osoba za komunikaciju
-- **Thomas Siard** (tsiard@unipu.hr) – Izrada dokumentacije, izrada ER dijagrama
-- **Ernest Dudaković** (edudakovic@unipu.hr) – Izrada dokumentacije, izrada EER dijagrama
+- **Alan Bubalo** (abubalo@unipu.hr) – Voditelj, QA, izrada procedura i triggera
+- **Alen Orbanić** (aorbanic@unipu.hr) – Programer, izrada tablica i insertova      (treba potvrditi!)
+- **Mihael Blažević** (mblazevic@unipu.hr) – Programer, izrada upita                (treba potvrditi!)
+- **Luka Brodarič** (lbrodaric@unipu.hr) - Osoba za komunikaciju, izrada aplikacije (treba potvrditi!)
+- **Thomas Siard** (tsiard@unipu.hr) – Izrada dokumentacije, izrada ER dijagrama    (treba potvrditi!)
+- **Ernest Dudaković** (edudakovic@unipu.hr) – Izrada EER dijagrama                 (treba potvrditi!)
 
 ### Pokretanje aplikacije
 
-- **npm install nodemon** - instalacija nodemon-a
+User:       root
+Password:   root
+
 - **npm start** - pokretanje aplikacije
-- **http://localhost:5050** - link za aplikaciju
+- <http://localhost:5050> - link za aplikaciju
