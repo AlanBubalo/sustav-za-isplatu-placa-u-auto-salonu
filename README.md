@@ -1,6 +1,6 @@
 ﻿# LUXE CARS
 
-## TIM 9 - Sustav za isplatu plaća u autosalonu
+## TIM 9 - Sustav za isplatu plaća u auto salonu
 
 Cilj ovog projekta bilo je izraditi baze podataka za isplatu plaća u autosalonu te pomoću web aplikacije omogućiti laki izračun koji treba dodijeliti radnicima.
 
