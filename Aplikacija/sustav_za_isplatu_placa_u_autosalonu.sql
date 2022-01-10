@@ -341,7 +341,13 @@ INSERT INTO racun (datum_izdavanja, id_zaposlenik, id_kupac, id_placanje, id_aut
 	("2019-12-22 20:21:32", 12, 3, 2, NULL, 4, NULL),
 	("2020-03-07 19:41:16", 9, 2, 3, 44, NULL, NULL),
 	("2020-08-11 17:35:42", 8, 1, 1, 51, NULL, NULL),
-    ("2020-09-11 17:40:4", 8, 15, 1, NULL, 3, NULL);
+    ("2020-09-11 11:40:4", 8, 15, 1, NULL, 3, NULL),
+    ("2019-11-15 15:15:22", 11, 5, 1, 48, NULL, NULL),
+	("2019-12-02 11:02:24", 11, 4, 3, 49, NULL, NULL),
+	("2019-12-22 14:21:32", 5, 3, 2, NULL, 4, NULL),
+	("2020-03-07 22:41:16", 9, 2, 3, 44, NULL, NULL),
+	("2020-08-11 16:35:42", 3, 1, 1, 51, NULL, NULL),
+    ("2020-09-11 14:40:4", 8, 15, 1, NULL, 3, NULL);
     
 INSERT INTO praznici (naziv, datum) VALUES 
 	("Bozic", "-12-25"),
@@ -680,3 +686,47 @@ SELECT ime, prezime, "zaposlenik" AS uloga
 # Optimizirani plan izvođenja upita
 
 # π ime, prezime, 'kupac' → uloga (σ ime = 'Tomislav' (kupac))) ∪ ( π ime, prezime, 'zaposlenik' → uloga (σ ime = 'Tomislav' (zaposlenik)))
+
+
+
+# Pogled koji pokazuje imena i prezimena kupaca koji su kupili aute skuplje od 500000 kuna.
+
+CREATE VIEW vip_kupci AS
+SELECT ime, prezime 
+FROM racun INNER JOIN kupac ON kupac.id = id_kupac
+INNER JOIN automobil ON automobil.id = id_automobil WHERE cijena > 500000;
+SELECT * FROM vip_kupci;
+
+
+# Pogled koji prikazuje imena i prezimena zaposlenika koji rade kao čistaći.
+
+CREATE VIEW zaposlenik_čistać AS
+SELECT zaposlenik.ime, prezime, pozicija.ime AS pozicija 
+FROM zaposlenik INNER JOIN pozicija ON pozicija.id = id_pozicija 
+WHERE id_pozicija = 12 OR id_pozicija=13;
+SELECT * FROM zaposlenik_čistać;
+
+# Pogled koji prikazuje sve zaposlenike koji su izdali račun te ih sortira po datumu zapošljenja toga korisnika.
+
+CREATE VIEW zaposlenik_izdaje_računa AS
+SELECT DISTINCT zaposlenik.id AS id, ime, prezime, datum_zaposlenja 
+FROM zaposlenik RIGHT JOIN racun ON zaposlenik.id = id_zaposlenik 
+ORDER BY datum_zaposlenja DESC;
+SELECT * FROM zaposlenik_izdaje_računa;
+
+# Pogled koji prikazuje zaposlenika koji je najviše zaradio u 7 mjesecu 2020.
+
+CREATE VIEW najplačeniji_zaposlenik AS
+SELECT id, ime, prezime, placa_mjesec(id, 7, 2020) 
+FROM zaposlenik ORDER BY placa_mjesec(id,7,2020) 
+DESC LIMIT 1;
+SELECT * FROM najplačeniji_zaposlenik;
+
+# Pogled koji prikazuje sve kupce i njihovu svotu novcu koju su potrošili na servise auta.
+
+CREATE VIEW potrošnja_servisa AS
+SELECT kupac.id AS id, ime, prezime, SUM(cijena) FROM kupac LEFT JOIN racun ON kupac.id = id_kupac 
+RIGHT JOIN servis ON servis.id = id_servis 
+GROUP BY kupac.id;
+SELECT * FROM potrošnja_servisa;
+
