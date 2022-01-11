@@ -53,7 +53,8 @@ CREATE TABLE kupac (
 CREATE TABLE klasa (
 	id INTEGER PRIMARY KEY AUTO_INCREMENT,
 	naziv VARCHAR(30) NOT NULL UNIQUE,
-    stopa_bonusa FLOAT DEFAULT 0
+    stopa_bonusa FLOAT DEFAULT 1,
+    CONSTRAINT klasa_stopa_bonusa_ck CHECK (stopa_bonusa > 0)
 );
 
 CREATE TABLE automobil (
@@ -126,7 +127,8 @@ END IF;
 END //
 DELIMITER ;
 
-# Zadatak: Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) -- Mihael
+# Zadatak: Napravi okidač koji nam osigurava da u slučaju, 
+# ako je zaposlenik radio preko 8 sati u jednom danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) te ako je praznik/nedjelja onda mu se svi sati računaju 50% više. -- Mihael
 
 DROP TRIGGER IF EXISTS bi_prisutnost;
 DELIMITER //
@@ -140,12 +142,10 @@ BEGIN
 	SET bonus = new.broj_sati - 8;
 	SELECT CONCAT("-", DATE_FORMAT(new.datum, "%m"), "-", DATE_FORMAT(new.datum, "%d")) INTO mjesecdan;
     
-    # Okidač nam osigurava da u slučaju ako je zaposlenik radio preko 8 sati u jednome danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%)
 	IF new.broj_sati > 8 THEN
 		SET new.broj_sati_sa_bonusima = 8 + (bonus * 1.5);
 	END IF;
     
-    # Okidač također osigurava ako je zaposlenik radio na nedjelju ili jedan od praznika da mu se dodaje bonus od 50% na satnicu
 	IF mjesecdan IN (SELECT datum FROM praznici) THEN
 		SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
 	END IF;
@@ -153,7 +153,6 @@ BEGIN
 		SET new.broj_sati_sa_bonusima = new.broj_sati_sa_bonusima + (new.broj_sati * 0.5);
 	END IF;
     
-    # Okidač će izbaciti grešku ako je zaposlenik upisan prisutan na poslu prije datuma svog zaposlenja
     IF new.datum < (SELECT datum_zaposlenja FROM zaposlenik WHERE id = new.id_zaposlenik) THEN
 		SIGNAL SQLSTATE '40000'
 		SET MESSAGE_TEXT = 'Zaposlenik nije mogao otići na posao prije nego li se zaposlio (provjerite datum)';
