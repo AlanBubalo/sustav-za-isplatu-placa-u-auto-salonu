@@ -113,7 +113,7 @@ CREATE TABLE prisutnost (
     CONSTRAINT prisutnost_broj_sati_ck CHECK (broj_sati > 0)
 );
 
-# Zadatak: Trigger se koristi u slučaju ako kupac želi platiti na rate, a nije odabrao karticu na rate kao način plaćanja, broj rata mu se postavlja na jednu (mora platiti odjedanput). - Mihael 
+# Zadatak: Trigger se koristi u slučaju ako kupac želi platiti na rate, a nije odabrao karticu na rate kao način plaćanja, broj rata mu se postavlja na jednu (mora platiti odjedanput).
 
 DROP TRIGGER IF EXISTS bi_racun;
 DELIMITER //
@@ -128,7 +128,7 @@ END //
 DELIMITER ;
 
 # Zadatak: Napravi okidač koji nam osigurava da u slučaju, 
-# ako je zaposlenik radio preko 8 sati u jednom danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) te ako je praznik/nedjelja onda mu se svi sati računaju 50% više. -- Mihael
+# ako je zaposlenik radio preko 8 sati u jednom danu, satnica za prekovremene sate mu se nadodaje na satnicu (+50%) te ako je praznik/nedjelja onda mu se svi sati računaju 50% više.
 
 DROP TRIGGER IF EXISTS bi_prisutnost;
 DELIMITER //
@@ -160,7 +160,7 @@ BEGIN
 END//
 DELIMITER ;
 
-# Zadatak: Okidač koji nam osigura da datum zaposlenja postane trenutni datum ako pokušamo zaposliti nekoga u budućem vremenu. -- Bubalo
+# Zadatak: Okidač koji nam osigura da datum zaposlenja postane trenutni datum ako pokušamo zaposliti nekoga u budućem vremenu.
 
 DROP TRIGGER IF EXISTS bi_zaposlenik;
 DELIMITER //
@@ -507,7 +507,7 @@ INSERT INTO prisutnost (id_zaposlenik, datum, broj_sati) VALUES
 	(29, "2020-12-25 08:12:20", 8),
 	(30, "2020-12-27 08:08:20", 7);
 
-# Zadatak: Funkcija koja vrača satnicu određenog zaposlenika. -- Bubalo
+# Zadatak: Funkcija koja vrača satnicu određenog zaposlenika.
 
 DROP FUNCTION IF EXISTS satnica_zaposlenika;
 DELIMITER //
@@ -525,7 +525,7 @@ DELIMITER ;
 # Primjer:
 SELECT satnica_zaposlenika(5) FROM DUAL;
 
-# Zadatak: Funkcija koja vrača broj računa koji je zaposlenik izdao, treba izbaciti -1 ako zaposlenik nije niti jedan račun izdao. -- Mihael
+# Zadatak: Funkcija koja vrača broj računa koji je zaposlenik izdao, treba izbaciti -1 ako zaposlenik nije niti jedan račun izdao.
 DROP FUNCTION IF EXISTS broj_racuna;
 DELIMITER //
 CREATE FUNCTION broj_racuna(p_id_zaposlenik INTEGER) RETURNS INTEGER
@@ -548,7 +548,7 @@ DELIMITER ;
 # Primjer:
 SELECT broj_racuna(10) FROM DUAL;
 
-# Zadatak: Zbroj sati rada od određenog zaposlenika u određenom mjesecu -- Mihael
+# Zadatak: Zbroj sati rada od određenog zaposlenika u određenom mjesecu.
 
 DROP FUNCTION IF EXISTS sati_mjesec;
 DELIMITER //
@@ -572,7 +572,7 @@ DELIMITER ;
 
 SELECT sati_mjesec(10, 1, 2020);
 
-# Zadatak: Izračun plaće ordeđenog zaposlenika u oređenom mjesecu -- Mihael
+# Zadatak: Izračun plaće ordeđenog zaposlenika u oređenom mjesecu.
 
 DROP FUNCTION IF EXISTS placa_mjesec;
 DELIMITER //
@@ -593,9 +593,9 @@ BEGIN
 END//
 DELIMITER ;
 
-SELECT placa_mjesec(17, 1, 2020);
+SELECT placa_mjesec(17, 7, 2020);
 
-# Zadatak: Procedura sprema auto u različite group ovisno o cijeni (grupe bitno_prodati i manje_bitno) -- Mihael
+# Zadatak: Procedura sprema auto u različite group ovisno o cijeni (grupe bitno_prodati i manje_bitno).
 
 DROP PROCEDURE IF EXISTS sortiranje_auta;
 DELIMITER //
@@ -632,7 +632,7 @@ DELIMITER ;
 CALL sortiranje_auta(150000, @bitno_prodati, @manje_bitno);
 SELECT @bitno_prodati, @manje_bitno;
 
-# Zadatak: Procedura koja sprema brojeve koliko je sveukupno novaca potrošio kupac na zasebno aute i servis. -- Bubalo
+# Zadatak: Procedura koja sprema brojeve koliko je sveukupno novaca potrošio kupac na zasebno aute i servis.
 
 DROP PROCEDURE IF EXISTS kupac_potrosio;
 DELIMITER //
