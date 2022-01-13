@@ -715,11 +715,11 @@ SELECT * FROM zaposlenik_izdaje_računa;
 
 # Pogled koji prikazuje zaposlenika koji je najviše zaradio u 7 mjesecu 2020.
 
-CREATE VIEW najplačeniji_zaposlenik AS
+CREATE VIEW najplaćeniji_zaposlenik AS
 SELECT id, ime, prezime, placa_mjesec(id, 7, 2020) 
 FROM zaposlenik ORDER BY placa_mjesec(id,7,2020) 
 DESC LIMIT 1;
-SELECT * FROM najplačeniji_zaposlenik;
+SELECT * FROM najplaćeniji_zaposlenik;
 
 # Pogled koji prikazuje sve kupce i njihovu svotu novcu koju su potrošili na servise auta.
 
