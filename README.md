@@ -8,7 +8,7 @@ Cilj ovog projekta bilo je izraditi baze podataka za isplatu plaća u autosalonu
 
 - **Alan Bubalo** (abubalo@unipu.hr) – Voditelj, QA, izrada procedura i triggera
 - **Alen Orbanić** (aorbanic@unipu.hr) – Programer, izrada tablica i insertova
-- **Mihael Blažević** (mblazevic@unipu.hr) – Programer, izrada upita 
+- **Mihael Blažević** (mblazevic@unipu.hr) – Programer, izrada upita
 - **Luka Brodarič** (lbrodaric@unipu.hr) - Osoba za komunikaciju, izrada aplikacije i izrada videa
 - **Thomas Siard** (tsiard@unipu.hr) – Izrada dokumentacije, prezentacije i izrada ER dijagrama
 - **Ernest Dudaković** (edudakovic@unipu.hr) – Programer, izrada pogleda i izrada EER dijagrama
@@ -20,3 +20,7 @@ Password: root
 
 - **npm start** - pokretanje aplikacije
 - <http://localhost:5050> - link za aplikaciju
+
+### Link za YouTube video prezentacije projekta
+
+- **Link:** https://youtu.be/d0twZyNLRGo
